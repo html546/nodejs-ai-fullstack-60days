@@ -5,6 +5,7 @@
 - 60 天日号连续、无缺号/重号
 - 代码围栏成对且都有语言标注
 - 每天都有指向原课的 day-XX 链接且编号匹配
+- 每天都有「原课知识精讲」小节；正文六阶段导读与侧边栏六组齐全
 - 繁体字扫描（正文、离线 HTML 与 zip 内源码快照）
 - 过时版本号表述
 - Markdown / HTML / zip 三份正文一致
@@ -89,6 +90,26 @@ def main():
         elif any(int(x) != d for x in found):
             bad_links.append((d, found))
     check("per-day original-course links", not bad_links, str(bad_links[:6]))
+
+    # 3b) 每天都有原课知识精讲；正文与 HTML 均齐备
+    missing_lecture = []
+    for k in range(60):
+        d, a = starts[k]
+        b = starts[k + 1][1]
+        seg = "\n".join(lines[a:b])
+        if "## 原课知识精讲" not in seg:
+            missing_lecture.append(d)
+    check("60 day lecture sections", not missing_lecture, "missing=%s" % missing_lecture)
+    check("html 60 lecture sections", html.count("<h2>原课知识精讲</h2>") == 60,
+          "found=%d" % html.count("<h2>原课知识精讲</h2>"))
+
+    # 3c) 六阶段导读与侧边栏分组
+    phase_titles = re.findall(r"^# 阶段[一二三四五六] · .+（Day \d+–\d+）$", md, re.M)
+    check("6 phase intro sections", len(phase_titles) == 6, "found=%d" % len(phase_titles))
+    check("html 6 phase banners", html.count('class="phase-banner"') == 6,
+          "found=%d" % html.count('class="phase-banner"'))
+    check("html 6 sidebar phase groups", html.count('class="nav-phase"') == 6,
+          "found=%d" % html.count('class="nav-phase"'))
 
     # 4) 繁体字扫描（读取 t2s 会改变的字表，命中即失败；零依赖）
     trad_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "trad_chars.txt")

@@ -1,10 +1,12 @@
 # Node.js 60 天：从零基础到 AI 协作全栈
 
-基于 [原版 Node.js 60 天课程](https://xiguadev.com/node-60days) 的日序与公开主题，重新编写讲解、练习和项目。原来只放在附录里的 NestJS、PostgreSQL、Prisma、认证、Redis、队列、Docker、部署与 SaaS 综合项目，在这一版都进入正文。保留每天的原课入口，便于对照。覆盖原课程的 **60 个日主题**，并补充 Next.js、tRPC 与 React Query 对照实验；主项目沿用 Nest REST，再配 React 页面，原课各技术的实现细节与深入程度并非逐段等量复刻。
+基于 [原版 Node.js 60 天课程](https://xiguadev.com/node-60days) 的日序与公开主题，重新编写讲解、练习和项目。原来只放在附录里的 NestJS、PostgreSQL、Prisma、认证、Redis、队列、Docker、部署与 SaaS 综合项目，在这一版都进入正文。每天在原课链接之后附一段**原课知识精讲**：提炼原版当天核心知识点，按本文技术栈重写，并写明「原版用 X、本文用 Y」的差异，便于带着知识脉络对照原课；正文按原版六阶段组织，每阶段前有导读。覆盖原课程的 **60 个日主题**，并补充 Next.js、tRPC 与 React Query 对照实验；主项目沿用 Nest REST，再配 React 页面，原课各技术的实现细节与深入程度并非逐段等量复刻。
 
 **本版文件与验证范围：**离线页与 Markdown 是完整的 60 天讲义；`60天配套/基础实验` 提供第 01—05 天独立实验，`60天配套/day54-web` 提供已构建验证的首屏前端，`60天配套/blog-api` 与 `60天配套/board-api` 提供第 16–53 天完整代码块的源码快照（不含脚手架与迁移历史，按正文补齐后才能运行）；`60天配套/docker-compose.prod.yml` 供第 55 天本机发布演练静态核对。其余片段按正文标注放进对应工程，不是已经打包完成的整套 SaaS 仓库。本机已运行基础实验、执行前端类型检查与构建，并检查 60 天目录和链接；PostgreSQL、Redis、Docker、OIDC、CI 和云端部署没有全部实测，不将预期结果当作通过记录。
 
 ## 从这里开始
+
+建议先读所在阶段的导读，再按「原课知识精讲 → 今日先学 → 跟做 → 练习 → 答案」的顺序过一天。精讲讲清原版的知识脉络与取舍，本文正文给出可执行的工程实现；两者技术栈不同时以正文为准。
 
 不要求会 JavaScript、不要求先办云账号，也不要求购买 AI 工具。先把代码跑通，再做当天练习。初学者可把一天拆成两到三个学习时段：读懂一个小例子、动手修改、跑完验收。60 天是 60 个学习单元，不是必须连续打卡的工期。环境安装、数据库和部署单元留更多时间；不能只因跳过了操作就给自己勾选完成。
 
@@ -115,8 +117,21 @@ AI 建议：
 - 若前几天还不熟悉变量、数组、函数和终端，优先用上面「参考与补课」里的 MDN JavaScript 指南和 Node.js 官方教程按主题补课；本包不含另一套旧版编号，不要去找 `lesson-XX` 之类的目录。
 
 
+# 阶段一 · Node.js 核心基础（Day 01–15）
+
+> 原课阶段：Day 01–15。本文按原版日序与主题推进，技术栈与实现细节按当前工程调整。
+
+从零搭起 Node.js 运行时认知：模块与 npm、fs/path/os、事件与流、事件循环与异步、原生 HTTP 与手写 REST，最后用 TypeScript 和调试能力收束。本阶段的过关产物是一套在本机跑通、能解释、能在错误栈里定位自己代码的**原生任务 API**。
+
 # 第 01 天：安装 Node.js，运行第一份任务清单
 原课：<https://xiguadev.com/node-60days/day-01>
+
+## 原课知识精讲
+
+原版第 1 天先把 Node.js 定位为「基于 V8、能在服务端跑 JavaScript 的运行时」，并用一张表对照浏览器 JS：浏览器有 DOM/BOM，Node 有 `fs`、`http`；两者都以 `globalThis` 为全局基准，Node 的历史别名是 `global`（浏览器是 `window`）。本文只取结论：先把代码跑起来，模块系统留到第 2 天，HTTP 留到第 7 天。
+
+原版还介绍了 REPL（`node` 直接进入）和 `process` 对象——`process.version`、`process.platform`、`process.cwd()`、`process.memoryUsage()` 都是没有浏览器等价物的运行时入口。本文以 `.mjs` 文件 + `node xxx.mjs` 为主线，因为文件能保存、能复现；REPL 只作为临时验证 `process` 字段的地方。原版用 `nvm` + Node 20，本文统一 Node 22/24/26 LTS + npm，安装命令按本文的版本约定执行。
+
 
 ## 今日先学
 
@@ -173,6 +188,13 @@ node day01.mjs
 
 # 第 02 天：拆分 ES 模块，用 npm 保存运行命令
 原课：<https://xiguadev.com/node-60days/day-02>
+
+## 原课知识精讲
+
+原版第 2 天用整节讲「为什么需要模块系统」：早期浏览器脚本共享全局作用域，命名冲突；Node 从一开始就让每个文件成为独立模块。两种体系要分清：CommonJS 用 `require`/`module.exports`，运行时同步加载、不可 tree-shake；ESM 用 `import`/`export`，编译时静态分析、支持 tree-shaking 和顶层 await。本文第 1 天起的 `.mjs` 就是 ESM。
+
+原版还讲了 ESM 里没有 `__filename`/`__dirname`，要用 `import.meta.url` 配合 `fileURLToPath` 取；以及 `package.json` 的 `type`、`main`、`scripts`、`dependencies` 字段和模块解析算法（先找精确文件，再补 `.js`/`.json`/`.node`，再看目录的 `index`，最后查 `node_modules`）。本文用到 `import.meta.url` 时按此写法；管理工具统一用 npm，原版的 pnpm 命令只作对照。
+
 
 ## 今日先学
 
@@ -238,6 +260,13 @@ npm ls picocolors
 
 # 第 03 天：用 fs、path 和 os 保存任务
 原课：<https://xiguadev.com/node-60days/day-03>
+
+## 原课知识精讲
+
+原版第 3 天的核心判断是「永远不要手动拼路径字符串」，一律用 `node:path`：`join`/`resolve` 处理分隔符差异，`basename`/`dirname`/`extname` 拆文件名，`path.resolve` 得到绝对路径。本文第 3 天保存任务时同样遵守这条，尤其 Windows 与 POSIX 分隔符不同。
+
+文件操作上原版对比了 `fs` 三套 API（回调、`fs.promises`、同步），本文采用 `node:fs/promises` 的 Promise 形式，与第 6 天的 async/await 一脉相承。原版还展开 `os` 模块（`os.tmpdir()`、`os.cpus()`、`os.totalmem()`）和 v20+ 的 `readdir` 递归选项；本文只用到文件路径与读写，需要列目录时按原版的递归写法扩展，不在主线引入 `os`。
+
 
 ## 今日先学
 
@@ -308,6 +337,13 @@ node day03.mjs
 # 第 04 天：理解事件、流和 Buffer
 原课：<https://xiguadev.com/node-60days/day-04>
 
+## 原课知识精讲
+
+原版第 4 天把 EventEmitter 定位为 Node 的核心设计哲学，也是 `http.Server`、`fs.ReadStream` 等大量核心模块的基类：`on` 注册、`emit` 触发、错误事件必须处理。本文第 1–3 天没用事件总线，但第 5 天的事件循环和第 7 天的 HTTP 服务器都建立在这套模型上。
+
+Buffer 与 Stream 是原版这一天的重点：Buffer 处理文件/网络/加密里的二进制；Stream 的思想是「不一次性读满内存，而是一块一块处理」，`pipe` 连接流并自动处理背压（backpressure），Transform 流可在读写之间做转换。本文第 4 天用分块读取演示背压问题的雏形，但不自定义 Transform；需要时按原版的结构扩展。原版讲的是 Node 内置事件与流，不涉及 Nest 的事件总线——那是第 16 天之后的内容。
+
+
 ## 今日先学
 
 文件中的中文和标点都以字节保存。`Buffer` 表示一段字节，`Buffer.from(text, 'utf8')` 将文本编码成字节，`buffer.toString('utf8')` 把完整的字节序列解码。字符串的 `length` 按 UTF-16 代码单元计数，`Buffer` 的 `length` 按字节计数。例如「任务」的字符串长度是 `2`，UTF-8 字节数是 `6`。
@@ -372,6 +408,13 @@ cmp data/tasks.json data/tasks.backup.json
 # 第 05 天：看懂事件循环的输出顺序
 原课：<https://xiguadev.com/node-60days/day-05>
 
+## 原课知识精讲
+
+原版第 5 天给出事件循环六阶段（timers → pending callbacks → idle/prepare → poll → check → close callbacks），并强调微任务在回调之间清空。一个高频易错点：`process.nextTick` 队列先于 Promise 微任务队列，但两者都不属于六阶段；Node 11+ 之后微任务的清空时机更接近浏览器，旧资料「每阶段结束清一次」的说法已经过时。
+
+原版还用两个对照实验钉死 `setTimeout(0)` 与 `setImmediate` 的顺序：在主模块里不确定，在 I/O 回调里 `setImmediate` 先于 `setTimeout`；并提醒 `nextTick` 递归会饿死事件循环。libuv 的部分解释了「单线程为何能高并发」——靠 epoll/kqueue 做 I/O 多路复用，线程池只处理 CPU 密集或某些系统 I/O。本文第 5 天用输出顺序题验收这些结论，原版用 `node:fs` 的 I/O 回调做第二组实验，两者可交叉验证。
+
+
 ## 今日先学
 
 昨天的事件监听函数在 `emit()` 调用时立即运行，流的完成回调则要等读写结果回来。Node.js 执行当前这一段 JavaScript 时，回调要等当前调用栈清空才能获得执行机会。调用栈记录正在执行的函数。微任务是一类会在检查点先排空的队列，`queueMicrotask()` 和已经兑现的 Promise 的 `.then()` 都可把工作放进去。定时器会在达到最短等待时间后等待执行机会，`setTimeout(fn, 0)` 依然要排队。
@@ -419,6 +462,13 @@ node day05.mjs
 
 # 第 06 天：用 Promise 和 async/await 读写任务
 原课：<https://xiguadev.com/node-60days/day-06>
+
+## 原课知识精讲
+
+原版第 6 天从「回调地狱」切入，给出 Promise 的状态机（pending → fulfilled/rejected）、`then/catch/finally` 与 `Promise.all`/`race`/`allSettled`，再过渡到 async/await： await 后面的异常要靠 try/catch 接住，不能只靠 `.catch`。本文第 6 天把任务读写改成 Promise 与 async/await，验收重点是「异常路径也要能走到」。
+
+原版另外讲了两个容易漏的点：一是并发限制（同时最多 N 个请求，用工作池而不是一次性 `Promise.all` 全部发起）；二是 `for await...of` 遍历异步迭代器，以及 `forEach` 里用 async 不会等待的经典陷阱。本文第 6 天只做顺序读写和并发限制的最小版本，`for await` 放到第 28 天分页/流场景再展开。
+
 
 ## 今日先学
 
@@ -478,6 +528,13 @@ node day06.mjs
 
 # 第 07 天：用原生 HTTP 返回任务
 原课：<https://xiguadev.com/node-60days/day-07>
+
+## 原课知识精讲
+
+原版第 7 天按「请求/响应模型 → 方法语义 → 状态码 → 常用头 → CORS → 原生 HTTP 服务器」的顺序铺开，重点是把状态码用准：201 用于创建并返回 Location、204 无响应体、400 输入错误、401 未认证、403 无权限、404 不存在、409 冲突、500 未预期错误。本文第 7 天返回任务数据，只先用到 200/201/404；第 12 天再补齐整套错误语义。
+
+CORS 部分原版讲透了「预检请求」：简单请求直接带 Origin，服务端回 `Access-Control-Allow-Origin`；带自定义头或非简单方法时，浏览器先发 OPTIONS 预检，服务端必须回应 `Allow-Methods`/`Allow-Headers` 才放行。本文第 9 天手写 CORS 中间件时按这套机制，不用第三方包；前端接后端时第 54 天用 Vite 代理绕开跨域，两者是不同层面的方案。
+
 
 ## 今日先学
 
@@ -547,6 +604,13 @@ if (req.method === 'GET' && req.url === '/health') {
 
 # 第 08 天：实现原生 REST 上半场：列出、新建和查单条
 原课：<https://xiguadev.com/node-60days/day-08>
+
+## 原课知识精讲
+
+原版第 8 天先解释「为什么先手写再上框架」：自己实现路由匹配和 JSON 解析，才知道框架替你做了什么。它的迷你框架由三块组成——路由器（按方法与路径匹配，从路径里取参数）、请求体解析器（按 Content-Type 读流并 `JSON.parse`）、组装入口（把两者接起来）。本文第 8 天同样手写 `GET /tasks`、`POST /tasks`、`GET /tasks/:id`，但不引入 Express。
+
+原版强调解析请求体时必须处理边界：超大 body 要拒绝、非法 JSON 要回 400 而不是让进程崩、未知 Content-Type 要明确处理。本文第 8 天先做能跑通的最小解析，第 12 天再补输入边界与错误响应；原版把请求日志、CORS 等横切逻辑留给第 9 天的中间件模式，本文节奏一致。
+
 
 ## 今日先学
 
@@ -642,6 +706,13 @@ curl -i http://127.0.0.1:3000/tasks/ID
 
 # 第 09 天：实现原生 REST 下半场：更新和删除
 原课：<https://xiguadev.com/node-60days/day-09>
+
+## 原课知识精讲
+
+原版第 9 天的核心概念是「中间件本质是函数组合」：每个中间件接收 `(req, res, next)`，做完自己的事调用 `next()` 把控制权交给下一个；不调用就会挂起请求。原版给出日志中间件、CORS 中间件、404 兜底和错误处理中间件的实现，并串成完整应用。本文第 9 天按同一结构完成 PUT/DELETE，同时补 CORS 与统一错误出口。
+
+一个关键约定：错误处理中间件必须放在最后，参数个数是四个 `(err, req, res, next)`，框架/手写的分发器靠元数识别它。本文在手写的分发逻辑里显式判断，原版用 Express 的约定；第 17 天进 Nest 后同名概念变成 Middleware/Guard/Interceptor/Pipe/Filter 五种，职责更细，但「横切逻辑集中处理」的思路没变。
+
 
 ## 今日先学
 
@@ -746,6 +817,13 @@ PATCH 返回 `200` 和更新后的任务，DELETE 返回 `204 No Content`（无�
 # 第 10 天：里程碑：验收本机任务板 API
 原课：<https://xiguadev.com/node-60days/day-10>
 
+## 原课知识精讲
+
+原版第 10 天是阶段一第一个里程碑，重点不在新语法，而在「把能跑的代码整理成能交付的项目」：目录分层、代码质量检查清单、README、Git 提交，以及一份知识回顾测验。本文第 10 天同样做本机验收，并明确「预期输出不等于已经替你执行」——所有 curl 结果都要自己在终端复现。
+
+原版用「迷你 TODO API」指代这一阶段项目，本文术语表统一叫「原生任务 API」，字段结构一致（字符串 id、title、todo/doing/done 三态）。原版 README 要求的接口清单、启动命令、示例请求，本文在第 10 天验收清单里逐项对应；原版用 pnpm，本文 npm，命令按本文写法。
+
+
 ## 今日先学
 
 到此里程碑，任务板可以接受 `GET /tasks`、`POST /tasks`、`GET /tasks/:id`、`PATCH /tasks/:id` 和 `DELETE /tasks/:id`。这足以练习资源建模、HTTP 方法、JSON 输入输出和状态码，但它还不是可供团队使用的产品：数据在内存、没有持久化、认证或输入大小上限，也没有完整测试。本课以命令行做一次可重复的端到端手工验收，明确项目目前做到哪一步。
@@ -791,6 +869,13 @@ curl -i http://127.0.0.1:3000/tasks/ID
 
 # 第 11 天：用 TypeScript 描述任务类型
 原课：<https://xiguadev.com/node-60days/day-11>
+
+## 原课知识精讲
+
+原版第 11 天解释「服务端为什么更需要 TypeScript」：前端多为组件 Props 类型，服务端则要约束请求体、响应体、数据库记录和跨层传递的形状，类型能提前暴露拼接错误。它给出服务端 `tsconfig.json` 的关键项（`target`/`module`/`moduleResolution`/`outDir`/`strict`），并推荐用 `tsx` 替代 `ts-node` 直接运行。
+
+本文第 11 天用 TypeScript 描述任务类型，并把值校验与类型声明分开：TS 类型只在编译期存在，运行时仍需守卫函数（原版叫 type guard）。原版用 `src/types.ts` + `src/validators.ts` 的分法，本文把类型定义放在同一工程里；第 18 天进 Nest 后，这类运行时校验升级成 DTO + class-validator，原理相同。原版提到的 `tsx` 只作运行工具对照，本文按第 11 天的工程配置执行。
+
 
 ## 今日先学
 
@@ -865,6 +950,13 @@ npm run day11
 
 # 第 12 天：按 REST 约定改进错误和输入边界
 原课：<https://xiguadev.com/node-60days/day-12>
+
+## 原课知识精讲
+
+原版第 12 天讲 REST 的核心原则——以资源为中心：URL 用名词复数表示集合/实例，方法表达动作（GET 读、POST 建、PUT/PATCH 改、DELETE 删），状态码表达结果；并给出统一响应格式、查询参数约定（`page`/`limit`/`sort`）、API 版本化（`/api/v1`）和 OpenAPI 文档的概念。本文第 12 天集中修正错误码与输入边界，接口形态按这套约定。
+
+原版特别强调「查询参数不是随便加的」：分页、过滤、排序要有统一入口与默认值，否则每加一个条件就改一次处理函数。本文第 12 天先做基础校验，第 28 天再完整实现分页/检索/排序；OpenAPI 在第 30 天用 Nest 的 Swagger 模块落地。原版这一天的 `GET /api/v1/users` 只是示例，本文工程里没有 users 资源，不要照抄路径。
+
 
 ## 今日先学
 
@@ -991,6 +1083,13 @@ curl -i -X POST http://127.0.0.1:3000/tasks -H 'content-type: application/json' 
 # 第 13 天：了解 Node 进程与 Worker
 原课：<https://xiguadev.com/node-60days/day-13>
 
+## 原课知识精讲
+
+原版第 13 天说明为什么要多进程/多线程：JS 代码跑在单线程上，CPU 密集任务会阻塞事件循环。它给了三套工具：`child_process`（`exec`/`execFile`/`spawn`/`fork` 启动子进程）、`worker_threads`（真正的线程，可共享 ArrayBuffer）、`cluster`（同端口多进程，主进程分发连接）。本文第 13 天观察进程与 Worker，不引入 cluster。
+
+原版把选型讲得很实用：I/O 密集靠事件循环即可，不需要多进程；CPU 密集用 worker_threads；要利用多核又不想改代码结构才用 cluster。注意 cluster 在容器里常与编排器的多副本策略叠加，反而增加复杂度——第 58 天画架构图时会再遇到这个取舍。本文的 Nest 服务默认单进程，队列worker 放到第 38/52 天独立进程。
+
+
 ## 今日先学
 
 Node.js 的进程对象 `process` 提供当前进程信息、命令行参数、环境变量和退出状态。API 服务在一个进程内运行；关闭或重启会清空当前的内存任务数组。环境变量适合把端口等配置从代码分开，但不要把秘密值放进示例或聊天。
@@ -1057,6 +1156,13 @@ node day13.mjs 0
 # 第 14 天：集中处理异常，用调试器定位问题
 原课：<https://xiguadev.com/node-60days/day-14>
 
+## 原课知识精讲
+
+原版第 14 天从「自定义错误类体系」讲起：定义一个带 `statusCode`/`code` 的基类，再派生 NotFound、Validation、Conflict 等子类，让「错误类型」和「HTTP 响应」一一对应；接着讲全局捕获（`uncaughtException`/`unhandledRejection`）和 Node 内置调试器。本文第 14 天集中处理异常并用调试器定位问题，错误分类沿用这套思路。
+
+原版特别提醒：捕获 `uncaughtException` 后进程处于不确定状态，正确做法是记录日志后重启，而不是假装没事继续运行；`unhandledRejection` 要显式监听，否则 Node 版本不同默认行为不同。这与本文第 8/9 天给 `createServer(async ...)` 补最外层 try/catch 是同一个问题的两面。第 16 天进 Nest 后，这套错误类由 HttpException 体系与 ExceptionFilter 接管。
+
+
 ## 今日先学
 
 错误不是都应该被悄悄忽略。可预期的输入问题要返回准确的 4xx 状态；意料之外的程序故障要记录必要上下文，并返回通用 500 信息，避免向客户端泄露堆栈或本机路径。`try/catch` 应围住可能失败的边界，在可恢复的位置处理错误；捕获后若没有恢复，就用明确的错误响应结束请求。Promise 异步失败也需要 `await` 所在的 `try/catch` 来接住。
@@ -1110,6 +1216,13 @@ node --inspect-brk debug-demo.mjs
 # 第 15 天：复盘并独立验收任务板
 原课：<https://xiguadev.com/node-60days/day-15>
 
+## 原课知识精讲
+
+原版第 15 天是阶段一收口：一张知识地图串起模块、fs/path、事件/流、事件循环、异步、HTTP、REST、TS、进程与错误处理；再用三道限时编码题验收——HTTP 文件服务器、并发爬虫、实时日志监控。本文第 15 天做独立验收，题目按本文的原生任务 API 变形，不照抄原版的三个挑战。
+
+原版强调这一阶段的过关标准是「能解释、能定位、能独立改」：不只跑通示例，还要能在报错栈里找到自己的代码、能说清异步顺序、能自己加一条路由。本文第 15 天的验收清单按这个标准列；原版用 pnpm 与 Node 20，本文 npm 与 Node 22/24/26，命令差异按各天约定执行。
+
+
 ## 今日先学
 
 前十五天从 JavaScript 基础过渡到 Node.js：变量、对象、数组、函数、条件和循环；模块及 npm；`fs`、`path`、`os`；事件、流和 `Buffer`；事件循环、Promise 与 `async/await`；原生 HTTP 和 REST；TypeScript、进程、Worker、异常与调试。如今的任务板以 `Task { id: string, title: string, status: 'todo' | 'doing' | 'done' }` 为核心，HTTP 服务器只绑定 `127.0.0.1`，只适合一位用户本机练习。
@@ -1157,9 +1270,22 @@ curl -i http://127.0.0.1:3000/tasks/ID
 提示词「请以代码审阅者身份，基于我贴出的脱敏 API 片段生成一份 Day 15 手工验收清单，包含方法、路径、预期状态码和待我确认的结果。不要假设命令已经执行，不要索要真实用户数据、口令或令牌。」按清单自己运行命令，保存脱敏的状态码记录。遇到错误时只分享最小复现和删去本机用户名、私有路径及请求秘密后的错误文本。
 
 
+# 阶段二 · 后端框架与数据库（Day 16–30）
+
+> 原课阶段：Day 16–30。本文按原版日序与主题推进，技术栈与实现细节按当前工程调整。
+
+进入 Nest 与数据层：模块 / 控制器 / 服务、请求生命周期、DTO 校验、异常响应，再到 PostgreSQL、索引、建模、Prisma 与事务。本阶段把上一阶段的内存任务数据换成可持久化的**博客 API**，重启数据仍在，分页与输入边界都可验收。
+
 # 第 16 天：用 Nest 模块搭起博客 API
 
 原课：<https://xiguadev.com/node-60days/day-16>
+
+## 原课知识精讲
+
+原版第 16 天的入口是「从『我管对象』到『容器管对象』」：前端习惯需要谁就 import 谁、自己 new；Nest 反过来，类把依赖声明在构造函数里，由 IoC 容器创建并注入。这也是 `Module`/`Controller`/`Service` 三件套的分工——Module 是装配清单，Controller 只把 HTTP 请求翻译成方法调用，Service 才是业务逻辑的家。本文第 16 天按同一分工搭博客 API。
+
+原版还拆了两件容易被当成「魔法」的事：装饰器本质是在类定义时执行一次的函数，`@Injectable()` 只是把类登记进容器；Provider 默认是单例，适合无状态服务、连接池与缓存客户端，REQUEST 作用域慎用。原版强调 Controller 不做校验、不做计算、不做持久化——这三条边界在第 17/18 天分别由 Pipe、DTO 和 Prisma 承接。原版用 NestJS 全拼，本文统一称 Nest；原版用 pnpm，本文 npm。
+
 
 ## 今日先学
 
@@ -1257,6 +1383,13 @@ export class AppModule {}
 
 原课：<https://xiguadev.com/node-60days/day-17>
 
+## 原课知识精讲
+
+原版第 17 天给出一条完整流水线：Middleware → Guard → Interceptor → Pipe → Handler → Interceptor（响应侧）→ Exception Filter，任何一层都能短路请求。各层职责要分清：Middleware 是离 Express 最近的早期拦截；Guard 只回答「能不能进」，返回 false 即 403；Interceptor 是环绕通知，能在 handler 前后插逻辑并改写返回值；Pipe 做参数转换与校验；Filter 是异常兜底翻译官。
+
+原版还讲了 `ExecutionContext`（Guard/Interceptor/Filter 共享的上下文，能取 handler、class、req/res）和四种注册粒度（全局、控制器、路由、参数）。一个常见坑：响应包装写在 Interceptor 里，异常路径却不经过它，导致错误返回格式不一致——本文第 19 天把成功与异常统一到同一外壳时正是按这个边界处理。原版这一天的 Middleware 写法基于 Express，本文网关层用 Nest 原生能力，概念可迁移。
+
+
 ## 今日先学
 
 一次正常请求按 `Middleware → Guard → Interceptor 入站 → Pipe → Controller → Service → Interceptor 出站` 的顺序走。中间件适合记录请求概况，守卫决定能否进入路由，管道处理参数，拦截器包围处理过程。未处理的异常会交给异常过滤器。守卫提前拒绝时，后续的处理器和参数管道都不会执行。
@@ -1333,6 +1466,13 @@ get(@Param('id', ParseIntPipe) id: number) {
 # 第 18 天：用 DTO 校验 JSON 请求体
 
 原课：<https://xiguadev.com/node-60days/day-18>
+
+## 原课知识精讲
+
+原版第 18 天先回答「已经有 TypeScript interface，为什么还要 class DTO」：类型在编译后消失，运行时拿不到；class + 装饰器才能在请求进入时校验。三件套的分工是 plain object → `ValidationPipe` → class 实例 → Controller。原版给出 `whitelist: true`、`forbidNonWhitelisted`、`transform: true` 三个开关的作用：剥掉未声明字段、直接拒绝未知字段、把 plain object 转成 DTO 实例。
+
+原版还覆盖了 `PartialType` 复用创建 DTO 做更新 DTO、嵌套 DTO 要显式 `@ValidateNested()`、自定义校验器写业务规则，以及 `reflect-metadata` 与 `emitDecoratorMetadata` 的配置坑。本文第 18 天用 DTO 校验 JSON 请求体，采用全局 ValidationPipe；原版用 pnpm 安装 `class-validator`/`class-transformer`，本文 npm 安装，代码一致。第 33 天的归属判断需要 DTO 里带作者信息时，按原版的嵌套 DTO 写法扩展。
+
 
 ## 今日先学
 
@@ -1427,6 +1567,13 @@ curl -i http://127.0.0.1:3000/posts -H 'Content-Type: application/json' \
 # 第 19 天：区分成功响应与异常响应
 
 原课：<https://xiguadev.com/node-60days/day-19>
+
+## 原课知识精讲
+
+原版第 19 天先讲「为什么要专门做异常处理」：靠默认行为抛 `NotFoundException` 只能得到框架默认格式，项目一大就出现成功/失败结构不一致、错误码散落、栈信息泄露三类问题。它把异常分三层——内置 `HttpException`、自定义业务异常、未知异常——并给出一个合格的全局 Filter 该做什么：按异常类型映射状态码、统一响应外壳、记录可追踪日志、对 500 脱敏。
+
+原版特别点出 Filter 与 Interceptor 的边界：Interceptor 只包成功路径，异常会跳过它直接进 Filter，所以响应包装不能只放 Interceptor。本文第 19 天分别给成功响应 `TransformInterceptor` 和异常 `AllExceptionsFilter`，并在第 19 天给出合并后的完整 `main.ts`，正是为了避免漏挂 ValidationPipe。原版还建议用业务错误码表（如分段编码）表达「HTTP 状态码说不清的具体问题」，本文在统一外壳里保留 `code` 字段。
+
 
 ## 今日先学
 
@@ -1525,6 +1672,13 @@ bootstrap();
 
 原课：<https://xiguadev.com/node-60days/day-20>
 
+## 原课知识精讲
+
+原版第 20 天是阶段二第一个里程碑，主题是「从会写到能交付」。最有价值的设计是 Repository 抽象：Service 不直接依赖内存数组，而依赖一个 `PostsRepository` 接口（用 Symbol token 注入），这样第 21 天换 Prisma 时只换实现、不动 Service。本文第 20 天完成内存版博客 API，按同样的接口边界组织，为第 27 天接 Prisma 留出接缝。
+
+原版还铺了几个交付期的基础设施：`ConfigModule` 把散落的 `process.env` 收成可注入的 `ConfigService`；`CommonModule` 用 `APP_XXX` provider 形式注册全局 Pipe/Guard/Interceptor/Filter（能注入依赖、测试时可替换）；requestId 贯穿日志、响应与异常；以及分页/排序/过滤的通用查询形态。这些在本文分别落到第 19 天（统一响应）、第 40 天（envSchema）和第 45 天（结构化日志）。原版这一天用 pnpm 与 Nest CLI，本文按正文的项目结构。
+
+
 ## 今日先学
 
 今天补齐文章更新与删除。`PATCH` 只修改请求中出现的字段，`title` 和 `body` 可以分别提交，`null` 会被拒绝。`authorId` 在创建时确定，发布时间后面由发布动作决定。删除返回 `200` 和被删 ID，客户端可据此移除列表上的那条文章。所有写入目前只存在当前 Nest 进程的数组里，重启后即清空。
@@ -1614,6 +1768,13 @@ curl -i http://127.0.0.1:3000/posts/1
 
 原课：<https://xiguadev.com/node-60days/day-21>
 
+## 原课知识精讲
+
+原版第 21 天用一张表对比 PostgreSQL 与 MySQL/MongoDB 后给出选型结论：本文沿用 PostgreSQL 16，理由是约束、事务与 JSONB 能力适配博客的数据形状。它强调三件事：用 Docker 起 PG 避免污染本机；SQL 是声明式的（说「要什么」，怎么做交给优化器）；约束要把业务不变量下沉到 schema，而不是全靠应用层。
+
+原版这一天的细节比本文展开得多：主键策略（自增/UUID/ULID/复合）的取舍、`NULL` 不是值而是「未知」所以 `= NULL` 永远为假、`INSERT ... RETURNING` 的用法、命名规范 `snake_case`（PG 对未加引号的标识符自动转小写）、schema 当代码用迁移管理。本文第 21 天只做基本查询，但建表时按原版的约束与命名约定来；`WHERE` 遇到 NULL 的坑在第 22 天 JOIN 与子查询里继续出现。原版用 Docker Compose，本文第 21 天用练习库，第 42 天再接 Compose。
+
+
 ## 今日先学
 
 PostgreSQL 是关系数据库：表保存同类行，列定义数据类型和约束。`PRIMARY KEY` 唯一标识一行，`NOT NULL` 禁止缺值，`FOREIGN KEY` 限制引用不存在的作者。今日把 Day20 的内存文章迁到数据库概念中，但暂不改 Nest 代码。命名保持 `authors`、`posts`；作者 Ada 的 ID 为 1，内容为测试数据。不要把本机连接密码放进命令历史、讲义或提交仓库。
@@ -1681,6 +1842,13 @@ INSERT INTO posts (title, body, author_id) VALUES ('', 'Draft', 1);
 # 第 22 天：用 JOIN、子查询与聚合查询文章
 
 原课：<https://xiguadev.com/node-60days/day-22>
+
+## 原课知识精讲
+
+原版第 22 天把 JOIN 的心智模型定为「先笛卡尔积再过滤」：`INNER JOIN` 取交集，`LEFT JOIN` 保留左表全部行（博客里「每篇文章和它的标签」是经典场景，没标签的文章也要出现）。最大的坑是把本该写在 `ON` 里的条件放进 `WHERE`，LEFT JOIN 会悄悄退化成 INNER JOIN。本文第 22 天用 JOIN 查文章与作者，按这个规则写条件。
+
+原版还讲聚合与分组：`COUNT(*)`/`COUNT(col)`/`COUNT(DISTINCT col)` 结果可能完全不同；`GROUP BY` 的硬规则是「SELECT 的列要么在 GROUP BY 里，要么被聚合包住」，PG 严格执行；`HAVING` 作用于分组后、`WHERE` 作用于分组前。子查询分标量子查询、`IN`/`EXISTS`、派生表三种，相关子查询会对外层每行执行一次。本文第 22 天用到 JOIN 与聚合，CTE（`WITH`）放到第 53 天统计查询里展开。
+
 
 ## 今日先学
 
@@ -1751,6 +1919,13 @@ ORDER BY a.id;
 
 原课：<https://xiguadev.com/node-60days/day-23>
 
+## 原课知识精讲
+
+原版第 23 天先把「没有索引就要全表 Seq Scan」摆出来，再讲 B-tree 的实现：数据按序组织成平衡多叉树，只有叶子节点存数据指针，查找走 log N 层，百万行通常 3~4 层磁盘读——这是 B+ 树，不是二叉树「每次排除一半、20 次比较」。本文第 23 天按这个正确模型讲解，第 57 天用执行计划验证。
+
+原版接着讲 `EXPLAIN` 与 `EXPLAIN ANALYZE` 的区别（后者真执行，生产上跑 DML 要小心）、`BUFFERS` 看缓存命中、联合索引的最左匹配、覆盖索引走 Index Only Scan、部分索引只索引热数据、表达式索引解决 `lower(email) = ?` 不走索引，以及 JOIN 的三种算法（Nested Loop/Hash/Merge）和索引膨胀后的 REINDEX。本文第 23 天做单列索引与最左前缀验证，其余作为索引选择的判断依据；窗口函数 `ROW_NUMBER`/`RANK`/`DENSE_RANK` 原版放在这天末尾，本文第 53 天统计时再落地。
+
+
 ## 今日先学
 
 索引帮助数据库定位行，代价是占磁盘且写入时也要维护。不要给每列盲目加索引；先从真实查询的筛选、排序和联结条件判断。主键与唯一约束通常已自动建立索引。文章列表按作者过滤并按创建时间倒序，单列索引未必能同时有效支持两项，所以可考虑 `(author_id, created_at DESC)` 复合索引。小表上查询计划可能仍选择顺序扫描，这是合理的；不能把“看见 Index Scan”当唯一验收标准。
@@ -1804,6 +1979,13 @@ LIMIT 10;
 # 第 24 天：从查询需求反推数据模型
 
 原课：<https://xiguadev.com/node-60days/day-24>
+
+## 原课知识精讲
+
+原版第 24 天从「为什么要建模」切入：先画图再建表，否则加一个字段牵动多张表。ER 图用三种符号表达实体、属性、关系即可；关系归纳为四种（1:1、1:N、N:M、自关联）。三范式的要求逐条是——1NF 字段原子、2NF 非主键列依赖整个主键（针对复合主键）、3NF 非主键列不依赖其他非主键列；反范式化要清楚在拿什么换什么（少 JOIN 但更新异常风险上升）。
+
+原版还展开几个本文会遇到的建模决定：时间戳列（createdAt/updatedAt/deletedAt/publishedAt）够用就别多加；树形评论有三种存储方案（邻接表/路径枚举/闭包表）；点赞是 N:M 加计数列；通知是异质事件；JSONB 强但容易被滥用；线上 schema 变更要分清安全与危险操作。本文第 24 天从查询需求反推模型，博客库只实现主线需要的表，原版的其他方案作为取舍参考。原版用 BIGSERIAL/UUID 讨论主键，本文 Prisma 6 的模型用 String @id @default(uuid())。
+
 
 ## 今日先学
 
@@ -1861,6 +2043,13 @@ ORDER BY p.id, t.name;
 # 第 25 天：固定 Prisma 版本并定义模型
 
 原课：<https://xiguadev.com/node-60days/day-25>
+
+## 原课知识精讲
+
+原版第 25 天先纠正「ORM = 不用写 SQL」的误解：ORM 真正解决的是把关系映射成对象、统一管理迁移与连接，复杂查询仍要能写原生 SQL。Prisma 的两个核心组件是 `schema.prisma`（数据模型）与 Prisma Client（生成的类型安全查询接口）；工作流三选一——`migrate`（有迁移历史，团队/生产用）、`db push`（快速原型）、`db pull`（从已有库反推 schema）。本文第 25 天固定 Prisma 6 并定义模型，用 migrate 流程。
+
+原版的一个硬主张是「N:M 永远显式建中间表」，不用 Prisma 的隐式关系语法，因为中间表迟早要加字段（如 `PostTag` 加 createdAt）。它还讲了 `include` 与 `select` 的区别（前者返回原对象加关联，后者只返回指定字段）、关联写入的 `connect`/`create`/`connectOrCreate`、`$queryRaw` 逃生口，以及 Prisma 不能映射的 PG 特性（部分索引、表达式索引、GENERATED 列等）。本文第 25 天按显式中间表建模；第 28 天做模糊搜索时会遇到「表达式索引 Prisma schema 表达不了」这个原版提前打过招呼的坑。
+
 
 ## 今日先学
 
@@ -1984,6 +2173,13 @@ npm run seed
 
 原课：<https://xiguadev.com/node-60days/day-26>
 
+## 原课知识精讲
+
+原版第 26 天讲 Prisma 事务的两套 API：顺序数组（`$transaction([...])`）和交互式回调（`$transaction(async (tx) => {...})`），后者才能做「读出来再决定写什么」。隔离级别部分原版写对了：SQL 标准定义四种，但 PostgreSQL 不实现 READ UNCOMMITTED，请求 RU 会静默提升为 READ COMMITTED；RR 在 PG 是快照隔离；Serializable 下冲突会抛 40001，需要重试。本文第 26 天按这个事实讲，不写「RU 能读脏数据」。
+
+原版还覆盖行锁（`FOR SHARE`/`FOR UPDATE`）、N+1 问题的真相、relationJoins 策略（Prisma 5.7 preview，5.20 在 PG 上 GA）、`query extension` 实现软删除、`$use` 中间件已废弃、连接池大小的显式配置、query log 与批量写入。本文第 26 天做关系查询与迁移管理，事务细节在第 29 天落到博客的修订历史上；`updateMany` + `count` 处理并发的原版方案在第 29 天用来替代「两次都成功」的错误承诺。
+
+
 ## 今日先学
 
 Prisma 的 relation 字段让应用能从文章取得作者，不代表数据库里重复存了作者。`include` 返回关联对象，`select` 限定要取的字段，公开 API 时应避免无意返回私密列。迁移是版本化数据库变更；`migrate dev` 用于本地开发，`migrate deploy` 用于部署环境应用已提交的迁移。本课没有在真实数据库上运行命令，不代表迁移已通过。
@@ -2064,6 +2260,13 @@ const posts = await prisma.post.findMany({
 # 第 27 天：在 Nest 中注入 Prisma 数据服务
 
 原课：<https://xiguadev.com/node-60days/day-27>
+
+## 原课知识精讲
+
+原版第 27 天讲「把 Prisma 塞进 Nest 到底要解决什么」：`PrismaService` 继承 `PrismaClient` 并在 `onModuleInit`/`onModuleDestroy` 管理连接；`enableShutdownHooks` 已废弃，不要照抄 2022 年教程的 `beforeExit` 写法。`PrismaModule` 用 `@Global()` 让全项目可注入，不必每个模块重复 imports。本文第 27 天在 Nest 中注入 Prisma 数据服务，按这套生命周期写法。
+
+原版最有价值的一节是「要不要在 Prisma 之上再封一层 Repository」：结论是 90% 项目不需要为了换 ORM 而封，但本项目因为第 20 天已经用 Symbol token 定义了 `PostsRepository` 接口、要证明「只换实现不动 Service」，所以封了。`PrismaPostsRepository` 把 DTO 翻译成 `where`/`orderBy`，并负责把 P2002 等 Prisma 错误码翻译成业务语义，别让 P 码漏到 Service。本文第 27 天沿用同一个接口，换实现即可；原版还区分了两个 Prisma 目录的 migrate 与 db pull 工作流，本文只有博客一个 Prisma 目录，按 migrate 走。
+
 
 ## 今日先学
 
@@ -2216,6 +2419,13 @@ curl -i http://127.0.0.1:3000/posts/ID
 
 原课：<https://xiguadev.com/node-60days/day-28>
 
+## 原课知识精讲
+
+原版第 28 天先立判断：不分页的列表就是 DoS 入口。Offset 分页直观，但深翻会塌（`OFFSET 100000` 要跳过十万行）；Cursor 分页用「上一页最后一条的值」定位，稳定且深翻不掉速。游标是不透明 token，内部是编码过的 `(排序值, id)`；Prisma 不支持 SQL 的行值比较 `(created_at, id) < (X, Y)`，要拆成 OR 形式，且时间戳精度可能导致漏行——多取一条判断 `hasMore`。本文第 28 天用 offset 分页 + 检索 + 排序，cursor 方案留在原版对照里理解。
+
+原版接着讲搜索：`ILIKE` 简单但前导通配符会慢，PG 全文搜索（FTS）走 `to_tsvector`/`to_tsquery` + `ts_rank` 排序，Prisma 的 `fullTextSearch` preview 拿不到排序能力，所以复杂搜索直接 `$queryRaw`；表达式索引和 trigram 索引 Prisma schema 表达不了，要靠手写 SQL 迁移。动态排序的安全底线是白名单而非把用户输入拼进 `ORDER BY`——本文第 28 天按白名单构造 `Prisma.PostOrderByWithRelationInput[]`，正是这条底线。原版这一天还会讲「本项目两个都给：`/posts` 用 offset、`/posts/feed` 用 cursor」，本文只做前者。
+
+
 ## 今日先学
 
 数据库列表必须限制返回数量。接口约定 `page` 从 1 开始，默认每页 10 条，最多 50 条；`q` 在标题或正文里做大小写不敏感的包含搜索；`sort` 仅允许 `createdAt` 或 `title`，`order` 仅允许 `asc`、`desc`。参数是字符串，要校验再传 Prisma，绝不把任意客户端字符串拼成 SQL。总数与当前页结果组成 `{items,total,page,pageSize}`，第 19 天的拦截器会再加 `data` 外层。
@@ -2284,6 +2494,13 @@ async listPage(query: Record<string, string | undefined>) {
 
 原课：<https://xiguadev.com/node-60days/day-29>
 
+## 原课知识精讲
+
+原版第 29 天把 ACID 落到博客工程：第 27/28 天的写操作都是单条 SQL，天然原子，不需要事务；直到引入「编辑文章 + 记修订历史」才出现真正的多写——这才是事务的用武之地。RC 隔离级别下最常见的并发坑是丢失更新（lost update）：两人同时读到 version=1，后写覆盖先写。解法是乐观锁——加 `version Int @default(1)` 字段，更新时带 version 条件并原子自增。
+
+原版区分了乐观锁与悲观锁：乐观锁假设不冲突，写时检查，适合多数 Web 场景；`SELECT FOR UPDATE` 悲观锁适合频繁冲突或必须串行（扣库存、转账）。`viewCount` 这类自增是可交换操作，用 `update` 让数据库原子加一即可，不需要 version。跨多行的不变量（乐观锁守不住）要升到 Serializable 并配合 40001 重试。本文第 29 天用事务保证多步写入并识别并发，按原版的 version + 原子自增方案。
+
+
 ## 今日先学
 
 单条 SQL 通常由数据库原子执行；多个写入作为一个业务动作时，需要事务防止只完成一半。发布文章要先确认文章存在，再设置 `publishedAt`；写入失败整体回滚。并发请求也可能同时通过“先查再改”的检查，所以唯一性、外键和条件更新应尽量交给数据库约束。事务不是自动解决所有竞争；更严格的业务还要考虑锁、隔离级别和重试。以下仅为示范代码，不表示已连数据库运行。
@@ -2323,6 +2540,13 @@ async publish(id: number) {
 # 第 30 天：完成可持久化博客 API
 
 原课：<https://xiguadev.com/node-60days/day-30>
+
+## 原课知识精讲
+
+原版第 30 天是阶段二里程碑，主题是「把 API 交付给别的开发者」：用 OpenAPI 而不是手写 Markdown 文档，因为代码改了文档忘改比没文档更坑。装配分三步——`DocumentBuilder` 设元信息、`SwaggerModule.createDocument` 生成文档、`SwaggerModule.setup('/docs', ...)` 挂载；DTO 用 `@ApiProperty`/`@ApiPropertyOptional` 标注约束与示例。本文第 30 天完成可持久化博客 API，接口清单与验收沿用这套契约思路。
+
+原版这一天最值得学的是「统一响应外壳怎么写进文档」：第 19 天的 `TransformInterceptor` 把所有成功响应包了一层，Swagger 默认不知道，要用 `@ApiEnvelope(PostResponseDto)` 这类装饰器在文档里如实描述；文档模型 `PostResponseDto` 不等于领域模型 `Post`。还提醒两点——`PartialType` 要从 `@nestjs/swagger` 引入（和 `@nestjs/common` 的同名工具用途不同），调试端点用 `@ApiExcludeEndpoint()` 隐藏。本文第 30 天不做 Swagger 集成，但接口响应结构保持与文档模型一致的习惯。
+
 
 ## 今日先学
 
@@ -2364,9 +2588,22 @@ npx prisma migrate status
 请 AI 扮演 API 测试者，按清单找一条最可能遗漏的回归路径，并说明预期状态码。只给虚构响应与字段，绝不粘贴数据库密码、个人凭据或真实业务数据。
 
 
+# 阶段三 · 认证、安全与缓存（Day 31–40）
+
+> 原课阶段：Day 31–40。本文按原版日序与主题推进，技术栈与实现细节按当前工程调整。
+
+给博客补上生产级能力：Session 与 JWT、RBAC 与资源归属、OIDC、Web 防护基线、Redis 缓存、BullMQ 队列与上传隔离。重点是分清「登录 / 授权 / 资源归属」三件事，并完成可测试的**博客安全版**。
+
 # 第 31 天：用 Session 和 JWT 表达登录状态
 
 原课：<https://xiguadev.com/node-60days/day-31>
+
+## 原课知识精讲
+
+原版第 31 天先分清认证（authn，你是谁）与授权（authz，你能做什么），再点出 HTTP 是无记忆的：登录之后要让后续请求被认出来，只有两条路——有状态 Session 在服务端记账（cookie 里放 sessionId），无状态 JWT 让 token 自证身份。本文第 31 天用 Session 与 JWT 表达登录状态，两套都要能讲清数据流。
+
+原版展开的几个认知本文直接沿用：HS256 是对称签名（同一 secret 签和验，泄露即能伪造），RS256 是非对称（私钥签、公钥验）；JWT 三段只是签名、不是加密，payload Base64URL 解码即可读，不能放敏感信息；无状态的代价是撤销难——用户点登出，服务端没存 token，exp 前它仍可用。token 存 localStorage 方便但怕 XSS，存 HttpOnly cookie 抗 XSS 但要防 CSRF，真实系统多用 access token + 可撤销 refresh token 混用。原版用 pnpm demo，本文第 32 天在 Nest 里落地。
+
 
 ## 今日先学
 
@@ -2424,6 +2661,13 @@ app.listen(3101, '127.0.0.1');
 # 第 32 天：给博客 API 签发并校验 JWT
 
 原课：<https://xiguadev.com/node-60days/day-32>
+
+## 原课知识精讲
+
+原版第 32 天把认证落进代码，第一条铁律是密码只存 bcrypt 哈希、绝不存明文或可逆加密，bcrypt 慢（cost 让单次约 100ms）本身就是对撞库的拖慢。注册流程是查唯一 → 哈希 → 建用户 → 签发 token，唯一性预检之外还要在写入处兜 P2002 竞态；响应里永远不返回 password，统一用 `toUserResponse` 脱敏。本文第 32 天给博客 API 签发并校验 JWT，按这套红线实现。
+
+原版的核心设计是双 Token：access token 无状态（快、免共享存储），refresh token 可撤销（补上登出/失效），并用「轮换」在每次刷新时作废旧 token、发一对新的。守卫从 `Authorization: Bearer` 取 token、验签通过后把 payload 挂到 `req.user`。原版还强调这一天故意不保护 posts——认证与授权分两天，posts 的守卫是第 33 天 RBAC 的事；本文第 32 天同样只交付登录流程，避免一次改太多导致验收混乱。原版用 `JwtModule.registerAsync`，本文按 Nest 11 的写法。
+
 
 ## 今日先学
 
@@ -2680,6 +2924,13 @@ me(@Req() req: AuthRequest) {
 
 原课：<https://xiguadev.com/node-60days/day-33>
 
+## 原课知识精讲
+
+原版第 33 天先接住第 31 天的区分：认证已经完成（`req.user = { sub, role }`），授权要回答「这个角色能不能做这件事」。RBAC 的做法是不直接给用户授权，而是给角色授权、用户绑定角色；纯角色判断用 `@Roles` 装饰器挂元数据 + `RolesGuard` 读取。资源级权限（「只有作者能改自己的文章」）守卫拿不到文章数据，必须放在 Service 里查出来后比对 `authorId`——本文第 33 天正是按这条边界补齐 PATCH/publish 的归属判断。
+
+原版还给了三个易错点：401（未登录）、403（已登录但无权）、404（资源不存在）要用对，前端才能决定是跳登录还是提示无权；守卫跨模块实例化时，Controller 上挂的 Guard 依赖其他模块的 Service，需要 `imports` + `exports` 配齐；已有表加 `authorId` 用可空 + `ON DELETE SET NULL` 迁移。本文第 33 天用 RBAC 和归属判断约束文章操作，读接口公开、写接口挂守卫；原版用 Nest 的 `Reflector` 读元数据，本文同款。
+
+
 ## 今日先学
 
 授权回答“这个人可以做什么”。RBAC 按角色赋权，资源归属则需要再判断文章的作者。今天的规则是普通用户只能删除自己的 `Post`，管理员可以删除任意文章。角色来自数据库，忽略客户端提供的角色。部署后修改角色，下一次请求就会依据最新记录授权。身份缺失或无法对应账号为 401，资源可见但无操作权限为 403，文章不存在为 404。下面针对公开博客，若资源为私有，应考虑统一返回 404。
@@ -2834,6 +3085,13 @@ async publishForActor(id: number, sub: string) {
 
 原课：<https://xiguadev.com/node-60days/day-34>
 
+## 原课知识精讲
+
+原版第 34 天先纠一个常见误解：OAuth 2.0 是授权委托框架，不是认证协议；它解决的是「用户授权第三方应用访问自己的资源」。四个角色是资源所有者、客户端、授权服务器、资源服务器（GitHub 把后两者合一）。有后端的 Web 应用该用授权码模式：浏览器跳到授权方拿 code，code 回到我们后端，后端用 code + client_secret 换 token——secret 只能待在后端，因为隐式模式把 token 拼在 URL fragment 里甩给浏览器，正是 SPA 藏不住 secret 才有的历史方案。
+
+原版重点讲了 `state` 参数：OAuth 回调是 GET，攻击者能拿自己的 code 诱导受害者访问回调 URL，造成「静默登录到攻击者账号」，state 就是在跳转时写入、回调时校验的随机值，作用等同 CSRF token。PKCE 是给藏不住 secret 的 SPA/移动端用的授权码增强。本文第 34 天用 OAuth 2.0 与 OIDC 接入外部登录，接的是 OIDC 身份层；原版以 GitHub OAuth 为例，概念一致，具体平台字段按本文的 provider 配置。
+
+
 ## 今日先学
 
 OAuth 2.0 允许应用获得外部服务授予的访问权限。OpenID Connect（OIDC）增加身份层，博客用它确认登录用户。今日使用授权码流程，由服务器交换授权码。`state` 绑定这一次浏览器登录流程，PKCE 绑定授权请求和换码，`nonce` 绑定收到的 ID Token。使用维护中的 `openid-client` v6 处理发现、换码及校验。博客根据验证后的 `(iss, sub)` 找 `User`，再签发第 32 天的应用令牌。
@@ -2944,6 +3202,13 @@ export class OidcController {
 
 原课：<https://xiguadev.com/node-60days/day-35>
 
+## 原课知识精讲
+
+原版第 35 天先校准心态：安全不是「挡住坏人」——坏人可能拿着完全合法的账号，所以防线要假设前一层已被绕过（纵深防御）。它把 OWASP Top 10（2021）与项目现状逐条对照，并挑三类讲透：SQL 注入根治靠参数化而非过滤；XSS 在这个纯 API 项目里几乎不沾边（没有服务端渲染页面），但前端渲染时要转义；CSRF 成立有严格条件（cookie 自动携带 + 服务端仅靠 cookie 认身份），Bearer token 放 Authorization 头天然免疫。
+
+原版还讲了 Helmet 一组安全响应头的作用、限流对撞库的刹车作用（bcrypt 慢只是被动拖慢，限流才是主动拦截），以及一份「今天挡住了什么、还没挡什么」的诚实清单。本文第 35 天建立 Web 防护基线，按同样的分层思路：输入校验（第 18 天）、认证授权（第 31–33 天）、安全头与限流（本天）、账号锁定与强度策略（第 40 天）。原版用 `express-rate-limit`，本文在 Nest 里按中间件实现；版本与包名按正文。
+
+
 ## 今日先学
 
 把防护落到每个入口。DTO ValidationPipe 拦住不符合约定的输入。Helmet 添加安全响应头。同源页面按文本渲染用户内容，富文本需使用成熟净化库并配置 CSP。跨域 CORS 只授权指定浏览器来源，无论来源如何，服务端都照常校验身份。若网页用 Cookie 自动携带凭据，写操作需要 CSRF 保护。使用 Prisma 参数化查询，动态排序字段从固定列表选择。登录限流之外，还需要通用错误、可靠的密码哈希及最少字段回显。
@@ -2999,6 +3264,13 @@ export class CreatePostDto {
 # 第 36 天：给博客 Post 列表加 Redis 缓存
 
 原课：<https://xiguadev.com/node-60days/day-36>
+
+## 原课知识精讲
+
+原版第 36 天先纠正心智模型：Redis 不是「更快的数据库」，而是真相源之外的加速层——缓存丢了，数据还在 PostgreSQL。五种基础数据结构要按「擅长解决什么问题」记：String 存值/计数，Hash 存对象字段，List 做队列，Set 去重与集合运算，Sorted Set 做排行榜。缓存策略三选一（Read/Write Through、Write Behind、Cache-Aside），Cache-Aside 之所以一统江湖是因为应用层可控、实现简单：查缓存 → 命中返回 → 未命中查库 → 回填。
+
+原版接着讲失效是缓存最难的命题：写后删缓存、三大坑（删除失败、并发读写导致脏回填、缓存穿透/击穿），以及优雅降级——Redis 挂了系统不能挂，读路径 catch 住之后要落回数据库。本文第 36 天给 Post 列表加 Redis 缓存，正是按「未命中要真正查库」验收：注意 `JSON.parse(null)` 返回 `null` 不抛异常，所以未命中检测必须显式判空并用 `Array.isArray` 校验。原版用 AsyncLocalStorage 让 `X-Cache: HIT/MISS` 穿透到响应头，本文把它作为选做。
+
 
 ## 今日先学
 
@@ -3115,6 +3387,13 @@ async listPublic() {
 
 原课：<https://xiguadev.com/node-60days/day-37>
 
+## 原课知识精讲
+
+原版第 37 天把第 36 天的尾巴兑现：Sorted Set 是排行榜的本命结构（写极频繁、读要按名次取 Top N，关系库里别扭）；分布式锁用 `SET key value NX EX seconds`，释放必须用 Lua 脚本校验 value 再删，否则会误删别人的锁。单进程内的 coalesce 合并不了多实例的并发未命中，锁必须放在所有实例都看得到的 Redis 里。本文第 37 天掌握 Redis 的键、TTL 与原子操作，分布式锁按这套写法。
+
+原版还把三个缓存问题分清：击穿是热点 key 过期后大量请求同时打到数据库（用锁或逻辑过期解决），穿透是查根本不存在的 key（用负缓存或布隆过滤器），雪崩是大量 key 同时过期（TTL 加抖动）。Pub/Sub 与消息队列也不同：Pub/Sub 是即发即弃、离线订阅者收不到，队列会持久化任务。本文第 37 天做 TTL 与原子操作练习，队列留在第 38 天；原版用 pnpm 命令，本文 npm。
+
+
 ## 今日先学
 
 Redis 常见数据结构有 String、Hash、List、Set 和 Sorted Set。博客先使用 String 存 JSON 缓存，使用 Set 做失效索引，使用 `INCR` 加计数。每个键都应有命名空间、版本和明确 TTL。`GET` 与 `SET EX` 是基本读写；多个命令分开执行不一定是原子的，需要 Redis 事务或 Lua 脚本。Redis 的计数可以辅助限流，但多实例部署要统一连接与过期策略，不能把它误认为业务数据库事务。
@@ -3176,6 +3455,13 @@ async countPreview(userId: string) {
 # 第 38 天：用 BullMQ 把耗时任务放到队列
 
 原课：<https://xiguadev.com/node-60days/day-38>
+
+## 原课知识精讲
+
+原版第 38 天从「同步发邮件为什么不行」切入：注册接口里同步调邮件网关会把用户请求拖慢，网关故障还会连带注册失败；把副作用剥出主流程，用户注册先成功，邮件晚点发。它对比了几种「晚点做」的手段，并定下 BullMQ 的三个角色——Queue（生产者入队）、Worker（消费者处理）、Job（任务本体），都落在 Redis 上。本文第 38 天用 BullMQ 把耗时任务放到队列，结构一致。
+
+原版重点讲队列的可靠性设计：重试配合指数退避兜住瞬时故障（网络抖动、503），永久故障（邮箱不存在）不要重试；重试耗尽进死信队列（DLQ），便于人工排查与补偿重放；消息队列默认 at-least-once 投递，同一任务可能执行多次，所以处理逻辑必须幂等。优雅降级延续第 36 天的哲学——Redis 挂了只降级、注册仍成功。原版还记了一个实战坑：队列名/jobId 不能含冒号。本文第 38 天按这套设计，第 52 天在任务板里再用一次队列时可直接迁移。
+
 
 ## 今日先学
 
@@ -3300,6 +3586,13 @@ async reindex(id: number, sub: string) {
 # 第 39 天：安全接收并隔离文章图片
 
 原课：<https://xiguadev.com/node-60days/day-39>
+
+## 原课知识精讲
+
+原版第 39 天先摆出「上传一张图」和「发一篇 JSON」的差别：multipart/form-data 要处理二进制、文件大小、MIME 类型与存储位置，JSON 那套 `JSON.parse` 不灵。它讲 Multer 为什么必需，以及存储后端抽象——本地磁盘 ↔ S3 换实现不动业务，与第 20 天 Repository 是同款思路。S3 兼容是这一天最省力的认知：R2、MinIO、OSS、B2 都实现同一套 PutObject/GetObject/DeleteObject，所以同一个 AWS SDK 客户端能通吃。
+
+原版把上传当安全问题：收到字节后、落地前必须用 Sharp 核验是不是真图（前端校验只是体验，绕过成本约等于零），并归一化尺寸与格式；封面只存地址不存字节，孤儿图要清理；存储失败与缓存失败的哲学相反——这里要 fail-fast，因为图片是业务数据而非加速层。本文第 39 天安全接收并隔离文章图片，归属判断要先查 `User.authorId → Author.id` 映射再比对 `Post.authorId`，否则会恒 403；schema 路径是博客项目的 `prisma/schema.prisma`，不是任务板的 `api/prisma/`。
+
 
 ## 今日先学
 
@@ -3470,6 +3763,13 @@ export class UploadsModule {}
 
 原课：<https://xiguadev.com/node-60days/day-40>
 
+## 原课知识精讲
+
+原版第 40 天是阶段三里程碑，先把第 35–39 天的安全尾巴收口。账号锁定与按 IP 限流是两层不是替代：限流挡的是「谁都能试」，锁定挡的是「拿着正确用户名反复试」；失败计数用带 TTL 的原子计数器（`INCR` + 首次 `EXPIRE` 必须原子化），锁定的三段式顺序和细节都有讲究。密码强度从 `@MinLength(8)` 升级成自定义校验器，按 NIST 新规平衡老式复杂度要求。
+
+原版还讲了一个很实用的修复：Express 默认对 JSON body 有 100KB 上限，超限错误本该是 413，不处理会被包成 500——要在异常层把这个错误识别出来返回正确状态码。最后它把第 32–39 天的防线拉成一张纵深防御全景图，每一层都假设前一层被绕过。本文第 40 天做博客安全与异步能力里程碑，环境配置用 envSchema 校验 `DATABASE_URL`/`UPLOAD_MAX_BYTES`/`WEB_ORIGIN`/`OIDC_*`，并确保上传拦截器真正读取上限值，而不是硬编码。
+
+
 ## 今日先学
 
 今天不引入新平台，而是把第 31–39 天串成一个可验收的博客里程碑。完成后，博客使用 JWT 认证，`User` 的角色和 `Post.authorId` 控制文章操作；公开 `Post` 列表可用 Redis 缓存但 Redis 故障能降级；重新索引使用 BullMQ 任务；封面上传经过允许列表、大小上限和隔离保存；所有秘密来自环境或平台密钥。这个博客仍是练习项目，协作任务板到第 46 天再迁移，不能把当前代码直接宣称为生产系统。
@@ -3541,9 +3841,22 @@ export function validateEnv(input: Record<string, unknown>) {
 提示词「这是一个脱敏的博客里程碑检查表，请按认证、授权、缓存、队列、上传、配置和日志分类，指出缺失的人工验收项；不要补造服务已运行的结论。」人工以状态码和数据是否改变为准，逐条复核。提交给 AI 前只保留虚构编号、字段名、测试结果和错误类别。
 
 
+# 阶段四 · DevOps 与部署（Day 41–45）
+
+> 原课阶段：Day 41–45。本文按原版日序与主题推进，技术栈与实现细节按当前工程调整。
+
+从「能跑」到「在哪都能跑」：Docker 多阶段构建、Compose 编排、CI/CD 检查、手动发布与回滚、结构化日志与健康检查。这一阶段交付的是**可重复的发布流程**，不是一次性的部署动作。
+
 # 第 41 天：用 Docker 打包博客 API
 
 原课：<https://xiguadev.com/node-60days/day-41>
+
+## 原课知识精讲
+
+原版第 41 天从「本地能跑」到「在哪都能跑」：容器和宿主机共享内核，不虚拟化硬件，所以别把它叫「轻量虚拟机」；多阶段构建把构建期需要的东西（TypeScript、esbuild、Prisma CLI、devDependencies）和运行期需要的分开，镜像才不会臃肿。缓存友好的关键是 `COPY` 依赖描述（package.json + lock）在 `COPY` 源码之前——源码一变不影响依赖层缓存。
+
+原版还讲了 alpine 镜像与 Prisma 的经典坑：alpine 用 musl libc，而 Prisma 查询引擎默认按 glibc 编译，要么换 bookworm-slim，要么设正确的 `binaryTargets`；运行时镜像三件套是 `--prod` + `--ignore-scripts` + 拷 `.prisma`；容器安全三件套是非 root、PID 1（tini）与优雅关闭；`.dockerignore` 首先要挡住 `.env`（密钥红线），其次才是体积。本文第 41 天的 Dockerfile 用 `node:22-bookworm-slim` 五阶段构建，已规避 musl 问题——原版 alpine + tini + glibc/musl 那段是原理背景，不要照搬到本文的 Debian 镜像。
+
 
 ## 今日先学
 
@@ -3627,6 +3940,13 @@ docker run --rm --name blog-api -p 127.0.0.1:3000:3000 --env-file .env blog-api:
 # 第 42 天：用 Compose 启动 API 与 PostgreSQL
 
 原课：<https://xiguadev.com/node-60days/day-42>
+
+## 原课知识精讲
+
+原版第 42 天把单镜像变成「一套能自己长起来的系统」：一份 Compose 骨架由 `services`/`volumes`/`networks` 三部分组成；`depends_on` 有三种 condition，`service_started` 只保证 started，`service_healthy` 要等 healthcheck，`service_completed_successfully` 等一次性任务成功退出。迁移建议做成独立 job，而不是在 api 启动时 `prisma migrate deploy`——多实例会并发迁移、失败原因也被启动日志淹没。本文第 42 天用 Compose 启动 API 与 PostgreSQL，按这个依赖顺序。
+
+原版花了一节讲存活与就绪的区别：liveness 回答「要不要重启」，readiness 回答「要不要导流量」；就绪判定是 SLO 决策——数据库必查，Redis 只是可选缓存，抖动不应让 readiness 失败。本文第 44 天按这个结论：ready 只查必要依赖（PG），Redis 抖动不影响导流。原版还提醒 `localhost` 在容器里是容器自己，跨服务要用服务名；`.env` 等配置在运行时注入而非烤进镜像。原版用 pnpm 和 terminus 自定义指标，本文按正文的工程配置。
+
 
 ## 今日先学
 
@@ -3715,6 +4035,13 @@ docker compose up -d api
 
 原课：<https://xiguadev.com/node-60days/day-43>
 
+## 原课知识精讲
+
+原版第 43 天先分清 CI（闸门：每次提交是否可合并）与 CD（交付：把已验证的版本发出去），再给一份 CI workflow 骨架：checkout → setup node → install（锁文件）→ 静态检查 → 迁移 → 测试 → 构建。service container 与第 42 天的 Compose 同构，CI 上用 `services:` 起 PG/Redis；迁移必须在测试之前，且用 `migrate deploy` 而不是 `migrate dev`。本文第 43 天建立 CI/CD 检查流水线，按这个顺序。
+
+原版有一节讲「为什么用 `tsc --noEmit` 当 lint」：它没有 eslint/prettier，是靠 TypeScript 编译器承担基础静态检查。本文当前 workflow 里类型检查由 `npm run build`（含 `tsc --noEmit`）承担，不是额外一步 lint——原版那一节的原理可以读，但不要照抄「加一个 typecheck step」的描述。原版还讲了 flaky 测试会毁掉 CI、缓存与并发省时间省钱、CD 里构建镜像推 GHCR、workflow 放子目录导致的路径坑，以及 Secrets 分类。本文用大版本 tag 引用 action，生产建议锁 commit SHA。
+
+
 ## 今日先学
 
 CI 在每次代码变更时自动安装依赖、生成 Prisma Client、运行测试并构建；CD 才负责交付或部署。先让 CI 只检查，不授予云端部署权限。锁文件保证依赖可重复安装。数据库测试使用短期测试服务和隔离数据库；CI 不能依赖开发者电脑上的 `.env`。秘密只在受保护环境配置，普通拉取请求不应读取部署密钥。
@@ -3790,6 +4117,13 @@ jobs:
 
 原课：<https://xiguadev.com/node-60days/day-44>
 
+## 原课知识精讲
+
+原版第 44 天先纠一个浪费时间的方向：这套 NestJS + BullMQ 镜像不适合直接部署到 Vercel——Vercel 适合标准页面和短时 Serverless 请求，而 worker 是常驻进程。候选是 Fly.io / Railway 这类吃 Docker、给常驻进程的平台；数据库用托管 PostgreSQL（Supabase/Neon），Redis 用 Upstash，别在生产自己运维。本文第 44 天规划一次手动云端发布与回滚，不代为部署，平台只是对照。
+
+原版重点讲生产迁移谁跑：本地靠第 42 天的独立 migrate job，生产同样要让迁移成为显式发布步骤，并采用 expand/contract（先加列、双写、再删旧列）保证可回滚——镜像回滚快，数据库迁移可能已经删列或重写数据，所以「可回滚代码」不等于「可回滚数据库」。启动要 fail-fast：连不上 DB 就退出，而不是起来了但 readiness 返回 503。两个探针分别给平台用：`/health` 给 liveness，`/health/ready` 给 readiness（只查 PG）。本文第 44 天按这些条件写发布与回滚清单。
+
+
 ## 今日先学
 
 今天学习发布流程，不登录真实云账号、不填账单、不连生产资源、不推送镜像或远程提交；**本机的镜像构建、Compose 配置校验与生产发布演练照常做**。发布前选符合地域、合规和预算要求的托管平台，明确 API 运行环境、托管 PostgreSQL、密钥管理、对象存储和日志保留策略。云资源可能按实例时长、数据库容量、出站流量、磁盘快照和日志计费；免费额度会变化，资源忘记关闭也可能产生费用。开始前阅读当前价格与限额，设置预算告警，避免承诺“免费”。
@@ -3827,6 +4161,13 @@ jobs:
 # 第 45 天：为博客添加结构化日志、观测与健康检查
 
 原课：<https://xiguadev.com/node-60days/day-45>
+
+## 原课知识精讲
+
+原版第 45 天先问「日志给谁看」：生产日志有三类读者——开发者调试、运维排查、SRE/告警系统，写法要求完全不同；结构化日志要写字段而不是散文，Pino 之所以是 Node 事实标准，靠的是快、结构化、child logger 带上下文。requestId 链路追踪部分用 CLS（AsyncLocalStorage）让深层 Service 日志也自动带上请求身份——这正是第 36 天缓存命中头用的同一套机制。
+
+原版把「日志脱敏」列为可观测性的反面：一条 `logger.info({ req })` 会把 authorization、cookie、password 全写进日志，日志文件权限松、留存久、还会被采集到第三方，所以这些字段必须显式删除。可观测性三支柱是 logs（发生了什么）、metrics（多少/多快）、traces（跨服务路径），Sentry 把「从日志里捞 5xx」变成主动推送。本文第 45 天添加结构化日志、观测与健康检查，readiness 仍按第 42 天的结论只查 PG。
+
 
 ## 今日先学
 
@@ -3929,9 +4270,22 @@ export class LoggingInterceptor implements NestInterceptor {
 提示词「审阅以下删除所有真实值的结构化日志样例，标出可能的秘密字段，并为健康检查给出 liveness、readiness 的状态码验收表。」人工逐字段确认脱敏和依赖边界。只分享虚构请求 ID、路由模板、状态码和延迟，不分享真实日志、令牌、IP 或用户标识。
 
 
+# 阶段五 · 全栈项目实战（Day 46–55）
+
+> 原课阶段：Day 46–55。本文按原版日序与主题推进，技术栈与实现细节按当前工程调整。
+
+把前四阶段的能力迁移到团队协作系统：需求与接口契约、项目脚手架、用户与团队、任务 CRUD、看板过滤排序、实时更新、通知队列、统计与前后端联调。最终要能演示一条完整链路：**登录 → 进入团队 → 操作任务 → 页面显示结果**。
+
 # 第 46 天：把协作任务板写成需求和接口契约
 
 原课：<https://xiguadev.com/node-60days/day-46>
+
+## 原课知识精讲
+
+原版第 46 天先回答「SaaS 第一天为什么不写代码」：博客和协作任务板的差别不在功能数量，而在协作模型——数据归谁、谁能看见。MVP 的纪律是敢砍：看板、甘特图、时间追踪、自动化、集成都先删，只留能验证核心假设的路径。原版把协作模型称为整个架构的命门，并落成 ADR-001：用户属于工作区，任务属于项目，项目属于工作区，所有查询都必须带 workspaceId 边界。本文第 46 天把协作任务板写成需求和接口契约，按这套归属链设计。
+
+原版还展开几个本文会遇到的决定：技术选型上博客弧线用 NestJS + REST 是为了练后端基本功，这条弧线要快速做类型安全的产品，所以原版选 tRPC；数据模型有两条横切线——归属链与成员身份；API 契约有四条贯穿原则；权限是「成员身份 + RBAC」两道串起来的闸。关键决策写成 ADR，代码会重写、图会演进，但「当时为什么这么选」是 durable 的。本文主项目沿用 Nest REST + React/Vite，原版 tRPC 只作对照实验；ADR 的思路保留。
+
 
 ## 今日先学
 
@@ -3967,6 +4321,13 @@ export class LoggingInterceptor implements NestInterceptor {
 # 第 47 天：启动 Nest、数据库和 React 页面
 
 原课：<https://xiguadev.com/node-60days/day-47>
+
+## 原课知识精讲
+
+原版第 47 天先纠正「脚手架 = 空项目」的误解：真正的地基要回答四个问题——技术栈怎么接、环境变量在哪校验、本地基础设施怎么起、类型怎么从后端流到前端。原版这条弧线选 Next.js + tRPC，并讲了 App Router 下用 `fetchRequestHandler` 挂 tRPC route；还强调 Prisma Client 必须做成单例——开发环境热更新时每次 new 都会堆连接，最后 PostgreSQL 报连接数耗尽。本文第 47 天启动 Nest、数据库和 React 页面，Prisma 单例的结论同样适用。
+
+原版这一天还有一个很实用的主张：环境变量校验要在服务端启动路径里做（用 Zod 的 envSchema），`DATABASE_URL` 写错不应该等到用户点页面才暴露。本地基础设施用 Compose 起 PG + Redis，保证任何人 clone 后能复现。本文按 Vite 6 + React + Nest REST 的栈执行，第 47 天的 Vite 代理要同时覆盖 `/api` 与 `/socket.io`（握手路径），否则第 51 天的实时链路不通；原版 Next.js/tRPC 的 route 写法只作对照。
+
 
 ## 今日先学
 
@@ -4133,6 +4494,13 @@ CSS 可以写 `.board { max-width: 60rem; margin: 2rem auto; padding: 1rem; }`�
 # 第 48 天：登录、建团队和验证成员身份
 
 原课：<https://xiguadev.com/node-60days/day-48>
+
+## 原课知识精讲
+
+原版第 48 天点出「用户系统的核心不是登录框，而是服务端身份」：真正重要的是每个后续请求进来时，服务端能得到一个可信的 `ctx.user`。密码只存哈希（原版用 Node 内置 `crypto.scrypt`），cookie 里不能直接放 `userId=...`，否则用户自己改 cookie 就能冒充别人——要用签名 token。本文第 48 天登录、建团队和验证成员身份，按同一原则。
+
+原版最关键的一节是「Membership 才是权限的载体」：不要把角色挂在 User 上，因为一个用户可以是 A 工作区的 OWNER、B 工作区的 VIEWER；角色必须挂在（userId, workspaceId）这条成员关系上。RBAC 先做四档（OWNER/ADMIN/MEMBER/VIEWER），不做细粒度 ACL；OWNER 至少留一个是不变量，不能让最后一个拥有者退出或被降级。邀请流程是先发 token、再接受，不是直接创建 Membership。本文第 48 天按成员关系建模，第 33 天的角色守卫经验可复用。
+
 
 ## 今日先学
 
@@ -4372,6 +4740,13 @@ export class TeamsController {
 
 原课：<https://xiguadev.com/node-60days/day-49>
 
+## 原课知识精讲
+
+原版第 49 天从「项目是任务的边界」讲起：任务不直接挂在工作区，而是属于项目，项目再属于工作区——所有查询都沿这条链带 workspaceId。任务编号不能靠 `count + 1`（并发会重复、删除会复用），要按工作区维护一个原子递增计数器或用 cuid。状态机规定任务状态只能按约定流转（todo → doing → done，重开另走路径），不是随便改字段。本文第 49 天把项目和任务 CRUD 都限定在团队内，按这条归属链与状态机实现。
+
+原版的另外几个点本文直接沿用：更新任务要带 version 做乐观锁（两人同时打开同一张卡，无脑覆盖会冲掉对方的修改）；标签是工作区级共享，不是项目级、也不是任务里的字符串数组；删除项目和任务先软删（写 `deletedAt`），并配一道资源闸检查权限。原版用 tRPC router 写这些接口，本文用 Nest Controller + Service，概念一致；路由顺序上 `/tasks/stats` 这类静态路径要声明在 `/tasks/:taskId` 之前，否则会被动态段吃掉。
+
+
 ## 今日先学
 
 项目和任务都是团队资源。先通过第 48 天的成员守卫，再让数据库查询一直带着 URL 中的团队和项目。`PATCH` 只修改实际提交的字段，任务创建时的默认状态是 `todo`。数据库还要阻止任务的团队与项目的团队不一致。我们用 `(teamId,projectId)` 外键表达这个规则，之后即使有后台作业写库，也得遵守同一约束。
@@ -4585,6 +4960,13 @@ export class TasksController {
 
 原课：<https://xiguadev.com/node-60days/day-50>
 
+## 原课知识精讲
+
+原版第 50 天先回答「CRUD 之后为什么还需要视图 API」：CRUD 围绕单个资源，看板页要的却是一整张按列组织的数据。读模型要按使用场景设计——看板返回 `{todo: [], doing: [], done: []}` 的列结构，不让前端自己 group；列表页把筛选、搜索、排序放进一个入口。游标分页而非 offset，因为 offset 越翻越慢。本文第 50 天给看板三列加过滤、排序和翻页，按这些读模型组织。
+
+原版还讲了拖拽排序的两个细节：用分数（float/字典序 key）而不是整型 position，这样插入两张卡之间只需取中点、不用重排全部；代价是反复插入同一处会让间隙越来越小，迟早要重平衡。拖拽同时可能改状态，不能绕过状态机；拖拽也要带 version 做乐观锁。视图 API 的权限永远从服务端解析归属（只接受 workspaceId/projectId，成员资格在服务端查），不能信前端传来的角色。本文第 50 天的列表接口按这套规则，原版用 tRPC 的 query，本文 REST。
+
+
 ## 今日先学
 
 看板的每一列都是同一个任务集合按状态过滤的结果。今天增加项目内列表接口，三列依次查 `todo`、`doing`、`done`，每一列分别保存自己的页码位置。空列返回 `200` 与空数组。页内按创建时间倒序排列，时间相同的记录再按 ID 倒序，数据库因此能给出明确的次序。活跃看板在翻页过程中仍可能有新增或移动，导致偏移量分页重复或漏项；第 51 天收到更新通知后从第一页重读。
@@ -4663,6 +5045,13 @@ curl -i -H "Authorization: Bearer $TOKEN" "$BASE?status=todo&limit=1&offset=0"
 
 原课：<https://xiguadev.com/node-60days/day-51>
 
+## 原课知识精讲
+
+原版第 51 天先立判断：实时不是目的，减少「协作错觉」才是——页面看着正常、数据其实过期，比没有实时更糟。三种方案要分清：轮询实现简单但有延迟和空请求；SSE 是一条不关闭的 HTTP 响应，服务端单向推、天然支持断线重连；WebSocket 双向通信，适合高频交互。原版这条弧线选 SSE，本文第 51 天用 Socket.IO（WebSocket）让同团队看板收到实时更新——选型不同，但下面这些约束一样成立。
+
+原版强调实时连接不是旁路，必须过成员闸：连上来也要验证 token 和 workspaceId，不能因为不是主 API 就跳过鉴权。事件总线先做单实例内存版，后续多实例再换 Redis pub/sub；在线用户不等于连接数（一人可能开两个标签页，按 userId 去重）；心跳机制防止长连接被中间代理悄悄断掉；实时事件不是数据库事务的一部分——先提交数据库、再广播事件，广播失败不能回滚已提交的数据。本文按 Socket.IO 的 namespace 与 path 区分写清配置：客户端 `io('/board', { path: '/socket.io' })`，Vite 代理 `/socket.io`，否则握手失败。
+
+
 ## 今日先学
 
 实现「别人改了数据，我这页要更新」有三种方案：轮询最简单，每 N 秒请求一次列表，实现成本最低但延迟高、请求量随在线人数放大；SSE 用一条 HTTP 长连接由服务端单向推送，浏览器原生 `EventSource` 自动重连，但只能服务端到客户端；WebSocket 双向通信，适合多端协作提示。原版第 51 天选 SSE，本改写版改用 Socket.IO（WebSocket 优先、自动降级到 HTTP 长轮询），好处是浏览器兼容和断线重连开箱即用，代价是多一个实时服务和房间状态。Socket.IO 默认 25 秒心跳检测断线，漏掉的事件靠重连后重读 HTTP 列表补齐。要注意单实例边界：房间与连接存在单个进程内存里，多实例部署必须接 Redis adapter 才能跨进程广播，这会引入新的故障点。HTTP 列表负责给页面一份当前快照；WebSocket 负责通知「数据可能变了」，不是把数据库搬到浏览器。收到事件后仍用第 50 天的列表接口重读，因此断线、漏事件或浏览器重连不会让页面把旧数据当成真相。房间按团队划分，客户端不能自行声明有权加入哪个团队；服务端必须从已验证的令牌取用户 ID，再查 Membership。
@@ -4734,6 +5123,13 @@ export class BoardGateway implements OnGatewayConnection {
 # 第 52 天：把通知放进 Redis 与 BullMQ
 
 原课：<https://xiguadev.com/node-60days/day-52>
+
+## 原课知识精讲
+
+原版第 52 天先讲通知的数据设计：为什么既存文案又存结构化 data——只存文案，前端无法可靠跳到对应任务；只存任务 ID，历史展示又会依赖可能已删除或改名的数据，所以两者都存。为什么用 `readAt` 而不是 `isRead` 布尔值：时间字段能回答「用户何时读过」「某次推送是否发生在已读之后」，且 `readAt IS NULL` 查询未读仍然高效。邮件状态不能复用 readAt——站内已读与邮件送达是两个维度。本文第 52 天把通知放进 Redis 与 BullMQ，按这套字段设计。
+
+原版接着讲队列侧：`jobId` 用 notification.id 做幂等第一道防线（重复入队不会再建同 ID 的任务）；短暂故障（超时、503）重试，永久故障（邮箱格式非法、模板不存在）不重试；最多三次、指数退避；worker 的 `concurrency: 4` 受供应商限流、Redis 连接数和数据库连接池约束，不是越大越好；Redis 不是永久审计库——业务审计由 PostgreSQL 的 emailStatus 承担。本文的连接配置要注意 ioredis 的 `RedisOptions` 没有 `url` 字段，须用 `new URL(REDIS_URL)` 拆成 host/port/账号/密码/TLS，兼容 `rediss://`。
+
 
 ## 今日先学
 
@@ -4887,6 +5283,13 @@ export class NotificationsProcessor extends WorkerHost {
 
 原课：<https://xiguadev.com/node-60days/day-53>
 
+## 原课知识精讲
+
+原版第 53 天从「completedAt 能回答所有历史问题吗」开始：不能，它只保存当前这次完成的时间，任务完成→重开→再次完成后，第一次完成时间被覆盖。所以统计历史完成要用独立的完成事件表或保留时间戳序列。另一个坑是 `WHERE date(completed_at) = ...` 会对列套函数、让索引失效，要写成范围比较 `completed_at >= X AND completed_at < Y`。本文第 53 天用资料库统计支援团队看板，按这两个规则。
+
+原版还展开统计查询的工程要点：OLTP 和统计查询的差别（前者点查为主、后者扫大量行做聚合）、条件聚合（`SUM(CASE WHEN ...)`）一次扫描拿到整张总览、工作区范围必须写进 SQL 否则越权，以及 `updatedAt` 不能当完成时间（任何字段更新都会动它）。本文第 53 天做看板统计时，SQL 里始终带 workspaceId，并用条件聚合避免多次往返；原版用 tRPC query 暴露，本文 REST。
+
+
 ## 今日先学
 
 看板统计回答的是「这个专案目前每种状态有几项」，不是把前端载入的单页项目数出来。若页面只载入 20 条，前端数量就不是总量。统计端点依然必须经 Bearer 与 TeamGuard，SQL 的 where 条件同时限制 `teamId`、`projectId`。查不到专案回 `404`，没有任务时仍回传三种状态的零值。
@@ -4940,6 +5343,13 @@ stats(@Param('teamId') t: string, @Param('projectId') p: string) {
 # 第 54 天：用 React 完成登入后的任务列表
 
 原课：<https://xiguadev.com/node-60days/day-54>
+
+## 原课知识精讲
+
+原版第 54 天先回答「为什么用 React Query」：服务端状态（工作区列表、任务列表）和界面状态（当前打开哪个视图、筛选条件、展开的表单）是两类东西，前者需要缓存、失效与后台刷新，后者用 `useState` 就够。`useState` 创建客户端要用函数形式（惰性初始化），因为组件每次渲染都执行函数体。`staleTime: 20_000` 是「20 秒内数据算新鲜、不主动重请求」，不是「20 秒后删除缓存」。本文第 54 天用 React 完成登入后的任务列表，按这个区分组织状态。
+
+原版还讲了：superjson 让 Date 字段在 tRPC 两端保持真正的 Date 对象（两端必须配同一个 transformer）；为什么不 `window.location.reload()`（会丢视图、滚动位置、筛选和展开状态）——用精确失效只更新受影响的数据；什么时候做乐观更新（拖动任务先改缓存、失败回滚）；加载/错误/空状态分别怎么处理（skeleton 贴近内容结构，错误保留服务端明确消息并用 role="alert"）。本文前端是 React + Vite 而非 Next.js/tRPC，没有 superjson 这条链路；错误提示与加载状态按同样的用户体验原则实现。
+
 
 ## 今日先学
 
@@ -5248,6 +5658,13 @@ export default function Page() {
 
 原课：<https://xiguadev.com/node-60days/day-55>
 
+## 原课知识精讲
+
+原版第 55 天先确定部署单元：Web、API、worker 分开，因为 worker 是常驻进程，Vercel 的短时 Serverless 模型不适合它；可以全部放同一平台，也可以 Web 放 Vercel、worker 放 Railway/Fly/Render。多阶段构建的动机与第 41 天一致；Next.js standalone 输出很小，但要配合 `outputFileTracingRoot`；Prisma Client 必须在镜像构建阶段 `prisma generate`，不能在 macOS 上生成后把 node_modules 拷进 Linux 镜像（查询引擎的系统二进制不匹配）；worker 要单独打包，因为 Next 构建不会自动编译一个独立的 TS worker。本文第 55 天准备部署设定与交付检查，技术栈是 Nest + Vite，没有 standalone 这一步。
+
+原版接着讲构建时变量与运行时变量的区别：`NEXT_PUBLIC_*` 会进入浏览器静态资源、构建时确定，改了要重新构建；数据库连接、Redis、Session 密钥是服务端运行时读取。数据库迁移必须成为发布步骤，且不能放进 Web 启动命令——三个实例同时启动会并发迁移；镜像可回滚不等于数据库可回滚，生产迁移用 expand/contract。连接池要按「实例数 × 每实例连接数」算总上限。本文前端是 Vite，`VITE_*` 才是构建期变量；`WEB_ORIGIN` 是服务端运行时 CORS 变量，不要写成 Next.js 的名词。
+
+
 ## 今日先学
 
 部署不是把本机 `.env` 和资料库搬到云端。正式环境要分离 Web 静态资产、Nest API、PostgreSQL、Redis，并以平台秘密管理器设定 `DATABASE_URL`、`REDIS_URL`、`JWT_SECRET`、允许的前端来源与 `PORT`。本日做部署准备与**本机生产发布演练**：API/Web 的 build、迁移套用、生产 Compose 启停都在本机完成；不登录真实云账号、不填账单、不连生产资源。前面阶段如已练习容器与 CI/CD，这里把 SaaS 的设定接回既有方法。
@@ -5302,9 +5719,22 @@ npm run build
 先填清单再问。「请只做部署准备的口头检查，一次问一项：我在哪个环境、资料库是哪个、秘密由谁注入、迁移如何执行、怎样判断可导流。等我回答后再指出缺漏，不要帮我建立云端服务或操作帐号。请提醒我移除任何可能的凭证与真实客户资料。」
 
 
+# 阶段六 · 测试、优化与系统设计（Day 56–60）
+
+> 原课阶段：Day 56–60。本文按原版日序与主题推进，技术栈与实现细节按当前工程调整。
+
+补齐工程能力：写能回归的测试、用数据定位性能瓶颈、画可扩展的系统、把项目整理成作品与面试答案，最后验收复盘。结课产物是**可复现的作品 README、测试清单、改进前后证据及项目讲解**。
+
 # 第 56 天：为权限和关键流程写可回归测试
 
 原课：<https://xiguadev.com/node-60days/day-56>
+
+## 原课知识精讲
+
+原版第 56 天先讲「用『错了会疼』圈范围」：测试要覆盖核心业务逻辑是句废话，落到这个项目上，圈出来的是权限边界、状态流转、并发版本、任务归属——这些错了会真的出问题。数据库用真的还是假的：集成测试最常见的偷懒是 mock Prisma（`prisma.task.findFirst.mockResolvedValue(...)`），写起来快但它把测试对象换掉了——真实世界出问题往往是「where 条件根本查不出你以为的东西」。本文第 56 天为权限和关键流程写可回归测试，集成测试用测试库而非 mock。
+
+原版还强调测试数据也走真实路由：「注册一个用户」不要直接 `prisma.user.create` 插库，而要调用注册路由，这样顺带验证了注册流程。测试金字塔从下到上是单元测试（纯逻辑）、集成测试（真数据库 + 真路由）、E2E（完整用户流程）；原版用 Vitest + Supertest + Playwright，并解释为什么是 Vitest 而不是大纲里的 Jest。本文的测试里若有 BullMQ 队列依赖，用 `overrideProvider(getQueueToken('notifications')).useValue({...})` 替换，避免测试连真 Redis；`NotificationsProcessor` 也可替换成空实现。
+
 
 ## 今日先学
 
@@ -5775,6 +6205,13 @@ NODE_ENV=test node --env-file=.env.test ./node_modules/jest/bin/jest.js --config
 
 原课：<https://xiguadev.com/node-60days/day-57>
 
+## 原课知识精讲
+
+原版第 57 天从「先定义要测的请求」开始：优化不是全局提速，而是针对一条可复现的慢请求。CPU 问题用 Node Inspector 连上应用，在 DevTools Memory 面板对同一流程做多次堆快照——内存问题要比较多次快照才能看出增长趋势，单次快照说明不了泄漏。数据库问题读执行计划（`EXPLAIN ANALYZE`），不猜索引。本文第 57 天用数据定位看板性能瓶颈，按「定义请求 → 采集证据 → 改一处 → 复测」的循环。
+
+原版把「响应优化」限定在瓶颈所在的一段：只改真正慢的查询或序列化路径，不做没有证据的重写。本文没有实测环境，练习以「可复查的优化记录」为产物——记录优化前的执行计划或耗时、改动内容、优化后的同一指标，不能把预期收益写成实测结果。第 23 天的索引知识和第 28 天的分页在这里合成证据链。
+
+
 ## 今日先学
 
 性能优化要先测量再改。先固定接口、数据量、并发数、Node 版本、PG16 状态和 Redis 状态，记录 p50、p95、错误率及数据库查询时间。看板列表的常见问题是没有联合索引、一次取太多列、偏移量很大，或每个任务再查一次关联数据。不要把浏览器感觉或一次请求耗时当成结论，也不要对生产系统做压力实验。
@@ -5820,6 +6257,13 @@ LIMIT 20 OFFSET 0;
 
 原课：<https://xiguadev.com/node-60days/day-58>
 
+## 原课知识精讲
+
+原版第 58 天用短链接服务走一遍系统设计：先澄清需求与约束（QPS、数据量、一致性要求、可用性目标），再估算容量——把假设写在算式旁边，例如「每天 1 亿次写入 × 365 天 × 5 年 ≈ 1800 亿条」，数字只是练习输入，方法才是重点。高层组件与请求路径要画出来：创建是客户端 → API → 参数与滥用校验 → PostgreSQL，解析是客户端 → API → 缓存 → 数据库 → 301 重定向。本文第 58 天把协作任务板画成可扩展的系统，按同样的「约束 → 估算 → 组件 → 瓶颈」顺序。
+
+原版还讲 CAP 与 BASE 在面试里的用法：不要背定义，而是拿它解释「为什么这个场景选 AP 不选 CP」。本文的架构图标注当前是单实例；多实例前必须先接 Redis adapter（Socket.IO 跨进程广播）与共享会话/缓存，否则扩容会静默破坏实时与登录状态——这是从原版「事件总线先内存版、多实例再换 Redis」延伸出来的具体前置条件。
+
+
 ## 今日先学
 
 系统设计先从边界和不变量开始。协作任务板的核心不变量是：任务属于一个项目，项目属于一个团队，操作者必须是该团队成员；写成功后，列表最终能读到新状态。Nest API 是无状态应用，PG16 保存事务数据，Redis/BullMQ 处理可重试的通知工作，React 静态资源由 Web 层发布。实时网关只是加速刷新，不承担唯一数据来源。
@@ -5858,6 +6302,13 @@ PostgreSQL 16（事实数据） Redis（队列与短期状态）
 
 原课：<https://xiguadev.com/node-60days/day-59>
 
+## 原课知识精讲
+
+原版第 59 天先给一份简历项目描述草稿的填空模板：用了 Next.js/tRPC/PostgreSQL 实现多工作区任务管理、通过约束和应用层成员校验处理数据边界、用 [你实际运行过的测试] 验证 [具体路径]——重点是事实、决策、证据三件事，不能写没做过的事。再准备一段项目介绍：从问题出发，讲约束、选择、结果，而不是列技术栈。本文第 59 天把项目整理成作品、简历和面试答案，按这套结构。
+
+原版还建议把知识清单变成「可追问的问题」：不是背「JWT 是什么」，而是准备「JWT 撤销怎么做、为什么选 refresh token 轮换」这类能被面试官追问两层的答案；用模拟面试与复盘补短板。本文的练习产物是作品 README、测试清单与项目讲解稿；原版用 Next.js/tRPC 的项目描述，本文对应到 Nest + React/Vite，技术名词按本文实际栈替换。
+
+
 ## 今日先学
 
 作品展示的是可验证的工程判断，不是堆砌依赖名。围绕协作任务板准备四类材料：运行截图或本机录屏、脱敏 README、接口和数据模型图、测试与性能结果。README 要说明 Node 22 / 24 / 26 LTS、Nest 11、PG16、Prisma 6.19.x、Redis/BullMQ 和 React+Vite+TS，注明哪些命令只在本机执行、哪些是部署建议，禁止上传 `.env`、JWT、数据库导出或真实客户数据。
@@ -5891,6 +6342,13 @@ PostgreSQL 16（事实数据） Redis（队列与短期状态）
 # 第 60 天：验收、复盘并规划下一段学习
 
 原课：<https://xiguadev.com/node-60days/day-60>
+
+## 原课知识精讲
+
+原版第 60 天先用一张图串起全栈链路：浏览器 → HTTP/CORS → Nest 路由 → Guard/Pipe → Service → Prisma → PostgreSQL，旁路是 Redis 缓存与 BullMQ 队列，实时更新走 Socket.IO——把 60 天的知识点挂到这张图上，比按目录复习有效。结课自检要求整理自己的证据（功能截图、测试输出、可复现的性能数据），而不是课程目录。本文第 60 天验收、复盘并规划下一段学习，按同样的证据标准。
+
+原版最后给出选进阶路线的框架：先判断自己想往深度（分布式、数据库内核、性能）还是广度（架构、产品、团队）走，再定四周计划——每周一个可交付的学习产物，而不是「看完某本书」。本文按这个框架写四周计划，工具与版本以当前工程为准；原版的 Next.js/tRPC 路线只作为「可深入的方向」之一，不是本文的结课要求。
+
 
 ## 今日先学
 
