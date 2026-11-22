@@ -2,7 +2,7 @@
 
 基于 [原版 Node.js 60 天课程](https://xiguadev.com/node-60days) 的日序与公开主题，重新编写讲解、练习和项目。原来只放在附录里的 NestJS、PostgreSQL、Prisma、认证、Redis、队列、Docker、部署与 SaaS 综合项目，在这一版都进入正文。保留每天的原课入口，便于对照。覆盖原课程的 **60 个日主题**，并补充 Next.js、tRPC 与 React Query 对照实验；主项目沿用 Nest REST，再配 React 页面，原课各技术的实现细节与深入程度并非逐段等量复刻。
 
-**本版文件与验证范围：**离线页与 Markdown 是完整的 60 天讲义；`60天配套/基础实验` 提供第 01—05 天独立实验，`60天配套/day54-web` 提供已构建验证的首屏前端，`60天配套/blog-api` 与 `60天配套/board-api` 提供第 16–53 天完整代码块的源码快照（不含脚手架与迁移历史，按正文补齐后才能运行）。其余片段按正文标注放进对应工程，不是已经打包完成的整套 SaaS 仓库。本机已运行基础实验、执行前端类型检查与构建，并检查 60 天目录和链接；PostgreSQL、Redis、Docker、OIDC、CI 和云端部署没有全部实测，不将预期结果当作通过记录。
+**本版文件与验证范围：**离线页与 Markdown 是完整的 60 天讲义；`60天配套/基础实验` 提供第 01—05 天独立实验，`60天配套/day54-web` 提供已构建验证的首屏前端，`60天配套/blog-api` 与 `60天配套/board-api` 提供第 16–53 天完整代码块的源码快照（不含脚手架与迁移历史，按正文补齐后才能运行）；`60天配套/docker-compose.prod.yml` 供第 55 天本机发布演练静态核对。其余片段按正文标注放进对应工程，不是已经打包完成的整套 SaaS 仓库。本机已运行基础实验、执行前端类型检查与构建，并检查 60 天目录和链接；PostgreSQL、Redis、Docker、OIDC、CI 和云端部署没有全部实测，不将预期结果当作通过记录。
 
 ## 从这里开始
 
@@ -122,7 +122,7 @@ AI 建议：
 
 Node.js 可以在浏览器之外运行 JavaScript。本课程使用受支持的 Node.js LTS 版本（22 / 24 / 26 均可，新项目优先 26）。到 Node.js 官网下载相应版本，安装后重新打开终端。Windows 读者使用 Git Bash，macOS 和 Linux 读者可以用自带的终端。讲义统一把命令和代码分开，命令粘贴到终端，JavaScript 存成文件再用 `node` 运行。<https://nodejs.org/>
 
-在「协作任务板」里，一条任务有三个字段。`id` 是字符串编号，`title` 是字符串标题，`status` 只能填 `todo`、`doing` 或 `done`。本阶段由一位用户在自己的电脑操作，先从终端输出开始，之后再把同一份任务结构用于 HTTP。
+在**原生任务 API** 里，一条任务有三个字段。（「协作任务板」专指第 46–55 天的团队全栈项目，见术语表；本阶段只是本机原生任务 API。）`id` 是字符串编号，`title` 是字符串标题，`status` 只能填 `todo`、`doing` 或 `done`。本阶段由一位用户在自己的电脑操作，先从终端输出开始，之后再把同一份任务结构用于 HTTP。
 
 ## 跟做
 
@@ -550,13 +550,13 @@ if (req.method === 'GET' && req.url === '/health') {
 
 ## 今日先学
 
-今天继续使用 `node:http`，不加入框架、数据库或登录系统。REST 是一种设计 HTTP 资源接口的风格，URL 表示资源，HTTP 方法表达操作：`GET` 读取，`POST` 创建。统一资源路径 `/tasks` 用来表示任务集合，`/tasks/t1` 表示编号为 `t1` 的单条任务。集合先放在服务器进程的内存里，所以服务重启后改动会丢失。本阶段仅供一位用户在本机练习。
+今天继续使用 `node:http`，不加入框架、数据库或登录系统。REST 是一种设计 HTTP 资源接口的风格，URL 表示资源，HTTP 方法表达操作：`GET` 读取，`POST` 创建。统一资源路径 `/tasks` 用来表示任务集合，`/tasks/<ID>` 表示单条任务。**注意 ID 方案从今天起切换**：第 01–07 天示例用 `t1`/`t2` 这类手写编号，今天起由服务端用 `randomUUID()` 生成 UUID；以前保存的 `/tasks/t1` 在今天的程序里会返回 404，请用创建响应里的 `id` 访问。集合先放在服务器进程的内存里，所以服务重启后改动会丢失。本阶段仅供一位用户在本机练习。
 
 HTTP 请求体是一段数据流。Node 的请求对象实现可读流接口，可用 `for await...of` 逐块读取；拼成文本后用 `JSON.parse()`。任何客户端输入都要先解析、再校验，不能直接假定它一定是合法 JSON 或符合任务格式。
 
 ## 跟做
 
-用下面代码新建 `day08.mjs`。服务器提供列举所有任务、按 ID 查一项、创建任务。新建只接收标题，服务端生成 ID 和状态，避免客户端伪造这些字段。同步的 `for...of` 适合循环数组，`for await...of` 则逐段等待 HTTP 请求体。读取请求体时先把每个 Buffer 收集起来，最后用 `Buffer.concat` 一次性解码；逐块 `toString()` 会把恰好跨块的汉字切成替换字符（第 04 天讲过这个坑）。
+用下面代码新建 `day08.mjs`。服务器提供列举所有任务、按 ID 查一项、创建任务。新建只接收标题，服务端生成 ID 和状态，避免客户端伪造这些字段。同步的 `for...of` 适合循环数组，`for await...of` 则逐段等待 HTTP 请求体。读取请求体时先把每个 Buffer 收集起来，最后用 `Buffer.concat` 一次性解码；逐块 `toString()` 会把恰好跨块的汉字切成替换字符（第 04 天讲过这个坑）。**`createServer` 的回调是 async，但 `node:http` 不会处理它返回的 Promise**：任何未捕获的异常都会变成 unhandled rejection 让进程退出，所以整个回调外面要包一层 `try/catch`，与第 12/14 天的统一错误处理一致；第 09 天的同一结构也要照此处理。
 
 ```js
 import { randomUUID } from 'node:crypto'
@@ -576,29 +576,34 @@ function send(res, status, body) {
 }
 
 const server = createServer(async (req, res) => {
-  const url = new URL(req.url, 'http://127.0.0.1:3000')
-  if (req.method === 'GET' && url.pathname === '/tasks') {
-    return send(res, 200, tasks)
-  }
-  if (req.method === 'POST' && url.pathname === '/tasks') {
-    try {
-      const body = await readJson(req)
-      if (typeof body.title !== 'string' || body.title.trim() === '') {
-        return send(res, 400, { error: 'title is required' })
-      }
-      const task = { id: randomUUID(), title: body.title.trim(), status: 'todo' }
-      tasks.push(task)
-      return send(res, 201, task)
-    } catch {
-      return send(res, 400, { error: 'invalid JSON' })
+  try {
+    const url = new URL(req.url, 'http://127.0.0.1:3000')
+    if (req.method === 'GET' && url.pathname === '/tasks') {
+      return send(res, 200, tasks)
     }
+    if (req.method === 'POST' && url.pathname === '/tasks') {
+      try {
+        const body = await readJson(req)
+        if (typeof body.title !== 'string' || body.title.trim() === '') {
+          return send(res, 400, { error: 'title is required' })
+        }
+        const task = { id: randomUUID(), title: body.title.trim(), status: 'todo' }
+        tasks.push(task)
+        return send(res, 201, task)
+      } catch {
+        return send(res, 400, { error: 'invalid JSON' })
+      }
+    }
+    const match = url.pathname.match(/^\/tasks\/([^/]+)$/)
+    if (req.method === 'GET' && match) {
+      const task = tasks.find((item) => item.id === match[1])
+      return task ? send(res, 200, task) : send(res, 404, { error: 'Task not found' })
+    }
+    return send(res, 404, { error: 'Not Found' })
+  } catch (error) {
+    console.error(error)
+    return send(res, 500, { error: 'internal error' })
   }
-  const match = url.pathname.match(/^\/tasks\/([^/]+)$/)
-  if (req.method === 'GET' && match) {
-    const task = tasks.find((item) => item.id === match[1])
-    return task ? send(res, 200, task) : send(res, 404, { error: 'Task not found' })
-  }
-  return send(res, 404, { error: 'Not Found' })
 })
 
 server.listen(3000, '127.0.0.1', () => console.log('任务板：http://127.0.0.1:3000'))
@@ -666,46 +671,51 @@ function send(res, status, body) {
 }
 
 const server = createServer(async (req, res) => {
-  const url = new URL(req.url, 'http://127.0.0.1:3000')
-  if (req.method === 'GET' && url.pathname === '/tasks') return send(res, 200, tasks)
-  if (req.method === 'POST' && url.pathname === '/tasks') {
-    try {
-      const body = await readJson(req)
-      if (typeof body.title !== 'string' || !body.title.trim()) {
-        return send(res, 400, { error: 'title is required' })
+  try {
+    const url = new URL(req.url, 'http://127.0.0.1:3000')
+    if (req.method === 'GET' && url.pathname === '/tasks') return send(res, 200, tasks)
+    if (req.method === 'POST' && url.pathname === '/tasks') {
+      try {
+        const body = await readJson(req)
+        if (typeof body.title !== 'string' || !body.title.trim()) {
+          return send(res, 400, { error: 'title is required' })
+        }
+        const task = { id: randomUUID(), title: body.title.trim(), status: 'todo' }
+        tasks.push(task)
+        return send(res, 201, task)
+      } catch {
+        return send(res, 400, { error: 'invalid JSON' })
       }
-      const task = { id: randomUUID(), title: body.title.trim(), status: 'todo' }
-      tasks.push(task)
-      return send(res, 201, task)
-    } catch {
-      return send(res, 400, { error: 'invalid JSON' })
     }
-  }
-  const match = url.pathname.match(/^\/tasks\/([^/]+)$/)
-  if (match && req.method === 'GET') {
-    const task = tasks.find((item) => item.id === match[1])
-    return task ? send(res, 200, task) : send(res, 404, { error: 'Task not found' })
-  }
-  if (match && req.method === 'PATCH') {
-    try {
-      const body = await readJson(req)
-      if (!statuses.includes(body.status)) return send(res, 400, { error: 'invalid status' })
+    const match = url.pathname.match(/^\/tasks\/([^/]+)$/)
+    if (match && req.method === 'GET') {
       const task = tasks.find((item) => item.id === match[1])
-      if (!task) return send(res, 404, { error: 'Task not found' })
-      task.status = body.status
-      return send(res, 200, task)
-    } catch {
-      return send(res, 400, { error: 'invalid JSON' })
+      return task ? send(res, 200, task) : send(res, 404, { error: 'Task not found' })
     }
+    if (match && req.method === 'PATCH') {
+      try {
+        const body = await readJson(req)
+        if (!statuses.includes(body.status)) return send(res, 400, { error: 'invalid status' })
+        const task = tasks.find((item) => item.id === match[1])
+        if (!task) return send(res, 404, { error: 'Task not found' })
+        task.status = body.status
+        return send(res, 200, task)
+      } catch {
+        return send(res, 400, { error: 'invalid JSON' })
+      }
+    }
+    if (match && req.method === 'DELETE') {
+      const index = tasks.findIndex((item) => item.id === match[1])
+      if (index === -1) return send(res, 404, { error: 'Task not found' })
+      tasks.splice(index, 1)
+      res.writeHead(204)
+      return res.end()
+    }
+    return send(res, 404, { error: 'Not Found' })
+  } catch (error) {
+    console.error(error)
+    return send(res, 500, { error: 'internal error' })
   }
-  if (match && req.method === 'DELETE') {
-    const index = tasks.findIndex((item) => item.id === match[1])
-    if (index === -1) return send(res, 404, { error: 'Task not found' })
-    tasks.splice(index, 1)
-    res.writeHead(204)
-    return res.end()
-  }
-  return send(res, 404, { error: 'Not Found' })
 })
 
 server.listen(3000, '127.0.0.1', () => console.log('任务板：http://127.0.0.1:3000'))
@@ -731,7 +741,7 @@ PATCH 返回 `200` 和更新后的任务，DELETE 返回 `204 No Content`（无�
 
 ## AI 搭档
 
-提示词「基于协作任务板和虚构 ID，出一道辨认 `400`、`404`、`204` 的 PATCH/DELETE 题。解释校验与资源查找的区别，不要要求数据库或认证。」手动发请求确认状态和数组变化。
+提示词「基于原生任务 API 和虚构 ID，出一道辨认 `400`、`404`、`204` 的 PATCH/DELETE 题。解释校验与资源查找的区别，不要要求数据库或认证。」手动发请求确认状态和数组变化。
 
 # 第 10 天：里程碑：验收本机任务板 API
 原课：<https://xiguadev.com/node-60days/day-10>
@@ -843,7 +853,7 @@ npm run day11
 
 ## 练习
 
-增加一条已完成任务，再增加函数 `countAll(items: Task[]): number` 返回任务总数。故意把一条状态改成 `'waiting'`，观察检查器报告。
+增加一条已完成任务，再增加函数 `countAll(items: Task[]): number` 返回任务总数，并在主流程用 `console.log` 打印 `总数 3`；只写函数不调用是看不到输出的。故意把一条状态改成 `'waiting'`，观察检查器报告。
 
 ## 参考答案与验收
 
@@ -964,7 +974,7 @@ curl -i -X POST http://127.0.0.1:3000/tasks -H 'content-type: application/json' 
 curl -i -X POST http://127.0.0.1:3000/tasks -H 'content-type: application/json' -d '{bad}'
 ```
 
-预期依次为 `200` 和 `[]`、`201` 且响应包含 `Location: /tasks/<新 ID>`、`400` 和 `{"error":"invalid JSON"}`。新建标题需要非空字符串。请求体超过 16 KiB 时由外层 `catch` 统一返回 `413`，客户端确实能收到响应；这里不能用 `req.destroy()`，它会连共享 socket 一起销毁，使 413 无法送达。限制和异常处理可减少误用，但不是完整的生产安全方案。
+预期依次为 `200` 和 `[]`、`201` 且响应包含 `location: /tasks/<新 ID>`、`400` 和 `{"error":"invalid JSON"}`。新建标题需要非空字符串。请求体超过 16 KiB 时由外层 `catch` 统一返回 `413`，客户端确实能收到响应；这里不能用 `req.destroy()`，它会连共享 socket 一起销毁，使 413 无法送达。限制和异常处理可减少误用，但不是完整的生产安全方案。
 
 ## 练习
 
@@ -1122,7 +1132,7 @@ curl -i http://127.0.0.1:3000/tasks
 curl -i -X POST http://127.0.0.1:3000/tasks -H 'content-type: application/json' -d '{"title":"完成 Day 15 验收"}'
 ```
 
-确认空集合为 `200`。新建为 `201`，响应里的 `status` 初值应为 `todo`，`Location` 头中含该条资源路径。复制响应里的 ID，替换以下命令中的 `ID`：
+确认空集合为 `200`。新建为 `201`，响应里的 `status` 初值应为 `todo`，`location` 头中含该条资源路径（代码里用 `res.setHeader('location', ...)` 写的是小写，`curl -i` 原样输出小写，HTTP 头名本就不区分大小写）。复制响应里的 ID，替换以下命令中的 `ID`：
 
 ```bash
 curl -i http://127.0.0.1:3000/tasks/ID
@@ -1475,6 +1485,30 @@ export class HttpErrorFilter implements ExceptionFilter {
 
 在 `src/main.ts` 导入这两个类，在 `app.listen` 前保留全局校验，并追加 `app.useGlobalInterceptors(new DataInterceptor())` 和 `app.useGlobalFilters(new HttpErrorFilter())`。重新执行第 18 天的成功创建请求，仍是 `201`，文章现在在 `data` 下。请求不存在的 `/posts/999999` 应得到 `404` 和 `{"error":{"statusCode":404,"message":"文章不存在"}}`。
 
+前三天是增量修改，很容易漏掉其中一步。下面给出合并后的完整 `src/main.ts`，可直接覆盖核对：`ValidationPipe`、拦截器、异常过滤器三者缺一，成功/错误响应格式就对不上。
+
+```ts
+// src/main.ts（第 16/18/19 天合并后的完整版本）
+import { ValidationPipe } from '@nestjs/common';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { DataInterceptor } from './common/data.interceptor';
+import { HttpErrorFilter } from './common/http-error.filter';
+
+async function bootstrap() {
+  const app = await NestFactory.create(AppModule);
+  // 第 18 天：DTO 校验，缺了它 whitelist 与 DTO 装饰器全部失效
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true, forbidNonWhitelisted: true, transform: true,
+  }));
+  // 第 19 天：成功响应包装与异常响应统一
+  app.useGlobalInterceptors(new DataInterceptor());
+  app.useGlobalFilters(new HttpErrorFilter());
+  await app.listen(3000, '127.0.0.1');
+}
+bootstrap();
+```
+
 ## 练习
 
 临时在 `PostsService.list()` 中把 `return` 替换为 `throw new Error('do-not-echo')`，请求列表并检查客户端和终端。完成后恢复原方法。
@@ -1632,7 +1666,7 @@ INSERT INTO posts (title, body, author_id) VALUES ('', 'Draft', 1);
 
 ## 原版对照阅读
 
-原版 Day21 用 14 个小节讲"为什么是 PostgreSQL"，本讲义只保留了建表和连接。补三点原理，能解释后面很多设计选择：
+原版 Day21 展开更细，讲"为什么是 PostgreSQL"，本讲义只保留了建表和连接。补三点原理，能解释后面很多设计选择：
 
 - **主键选自增还是 UUID**：自增 `BIGSERIAL` 紧凑、索引局部性好，但会暴露业务量、且分库分表时主键会冲突；UUID 全局唯一、便于合并数据，但 128 位随机值会写坏 B-tree 的局部性、索引更大。单机博客用自增即可，分布式或需要对外暴露不可猜 ID 时选 UUID（可用 `uuidv7` 兼顾时间有序）。
 - **把业务规则写进 schema**：`NOT NULL`、`UNIQUE`、外键和 `CHECK` 是最后一道防线——即使所有应用代码都有 bug，数据库也不会接受非法状态。能在 schema 表达的规则就别只写在应用层。
@@ -1701,7 +1735,7 @@ ORDER BY a.id;
 
 ## 原版对照阅读
 
-原版 Day22 用 16 个小节拆解 JOIN，本讲义只演示了三种 JOIN 的写法。三个最容易写错的点：
+原版 Day22 展开更细，拆解 JOIN，本讲义只演示了三种 JOIN 的写法。三个最容易写错的点：
 
 - **JOIN 的心智模型**：`A JOIN B` 先产生两表的笛卡尔积（行数 = A×B），`ON` 条件再逐行过滤，`INNER` 丢弃不匹配的、`LEFT` 保留左表并给右表补 `NULL`。先按这个顺序在纸上推一遍，结果就不再神秘。
 - **`ON` 还是 `WHERE`**：对 `LEFT JOIN`，把条件放 `ON` 里，不匹配的行仍保留（右表补 `NULL`）；放 `WHERE` 里会过滤掉这些 `NULL` 行，等于把 `LEFT` 变成了 `INNER`。"只取某类右表行的左表全量"必须放 `ON`。
@@ -1756,9 +1790,9 @@ LIMIT 10;
 
 ## 原版对照阅读
 
-原版 Day23 有 16 个小节讲索引，本讲义只要求"建索引、看变快"。补四点，让"为什么这个索引有效"可推理：
+原版 Day23 展开更细，讲索引，本讲义只要求"建索引、看变快"。补四点，让"为什么这个索引有效"可推理：
 
-- **B-tree 为什么是 O(log N)**：索引把数据组织成多层平衡树，每次比较排除一半分支，100 万行大约 20 次比较就能定位，而不是全表扫描 100 万次。树的每个叶子节点存索引列值加指向数据行的指针。
+- **B+ 树为什么是 O(log N)**：PG 默认索引是平衡多叉（B+）树，不是二叉树。每个内部节点按扇出（通常数百个键）逐层分流，100 万行大约只需 3~4 层、3~4 次磁盘读就能定位到叶子，而不是「每次排除一半、约 20 次比较」。叶子节点存索引列值加指向数据行的指针，并用双向链表串起来，所以范围扫描和 `ORDER BY` 能顺序读叶子，不必回到上层。
 - **怎么读 `EXPLAIN`**：看 `Seq Scan`（全表扫描，通常是要优化的信号）、`Index Scan`（走索引回表）、`Index Only Scan`（索引覆盖，不回表，最快）；再比较 `cost`（规划器估算，相对值）和 `rows`（预估返回行数）。加 `ANALYZE` 会真的执行并给出实际耗时与行数，两者差很多说明统计信息过期。
 - **联合索引的最左匹配**：`CREATE INDEX ON posts (author_id, created_at)` 能服务 `WHERE author_id=?`、`WHERE author_id=? ORDER BY created_at`，但不能服务只按 `created_at` 过滤的查询——索引列从左到右用，跳过左边列就用不上。
 - **索引不是免费的**：每个索引都要在 INSERT/UPDATE/DELETE 时同步维护，读写的是"以写换读"。小表（几百行）全表扫描往往比走索引更快。该不该建，问三句：这个查询常用吗？过滤的选择性够吗（返回行的比例小）？写代价能接受吗？
@@ -1812,7 +1846,7 @@ ORDER BY p.id, t.name;
 
 ## 原版对照阅读
 
-原版 Day24 用 16 个小节讲建模，本讲义只给了一张最终 schema。补三点判断依据：
+原版 Day24 展开更细，讲建模，本讲义只给了一张最终 schema。补三点判断依据：
 
 - **前三范式（1NF/2NF/3NF）**：1NF 要求列不可再分（不要用逗号拼接多个标签）；2NF 要求非主键列依赖整个主键（复合键时常见）；3NF 要求非主键列之间不互相依赖。满足 3NF 的表，同一份事实只存一处，更新不会漏。
 - **反范式是明确的交换**：为了少一次 JOIN，允许在 `posts` 冗余一个 `author_name` 或 `like_count`；代价是更新时要同步多处，且可能不一致。只有在读远多于写、且用事务或触发器保证同步时才值得。
@@ -1882,7 +1916,7 @@ model Post {
 }
 ```
 
-确认 `DATABASE_URL` 的数据库名是新的空练习库，再执行 `npx prisma migrate dev --name init_blog`。预期创建 `authors` 与 `posts`，并生成 `prisma/migrations`。若提示 schema drift 或要求 reset，先停止并核对是否仍连着第 21–24 天的旧库，不要靠重置旧库继续。若提示无法连接，先检查 PostgreSQL 是否正在运行、数据库是否存在、环境变量是否加载；不要把 URL 发给 AI 或粘贴到聊天中。若迁移文件夹已存在，不要覆盖旧迁移；先检查现有状态。
+确认 `DATABASE_URL` 的数据库名是新的空练习库，再执行 `npx prisma migrate dev --name init_blog`。预期创建 `authors` 与 `posts`，并生成 `prisma/migrations`。注意第 21 天手写的 `CHECK (length(btrim(title)) > 0)` 约束不在 Prisma schema 的表达能力内，所以这次 `init_blog` 生成的迁移**不含该 CHECK**；要在练习库保留它，得把语句手写进迁移 SQL（见第 25 天「Prisma 映射不了的东西」）。若提示 schema drift 或要求 reset，先停止并核对是否仍连着第 21–24 天的旧库，不要靠重置旧库继续。若提示无法连接，先检查 PostgreSQL 是否正在运行、数据库是否存在、环境变量是否加载；不要把 URL 发给 AI 或粘贴到聊天中。若迁移文件夹已存在，不要覆盖旧迁移；先检查现有状态。
 
 迁移只创建表，不会创建 Ada。新建 `prisma/seed.mjs`，用 `upsert` 保证固定作者 ID `1` 存在，重复执行不会插入第二个 Ada。显式写入 ID 不会推进 PostgreSQL 自增序列，脚本随后把作者序列同步到现有最大 ID，避免将来自动创建作者时撞号。
 
@@ -1935,7 +1969,7 @@ npm run seed
 
 ## 原版对照阅读
 
-原版 Day25 用 16 个小节讲 Prisma，本讲义只走了"写 schema → migrate → CRUD"一条路。补两块：
+原版 Day25 展开更细，讲 Prisma，本讲义只走了"写 schema → migrate → CRUD"一条路。补两块：
 
 - **三套工作流的决策树**：`prisma migrate dev` 在本地开发、要留下可复现的迁移 SQL 文件（团队共用、生产可执行）；`prisma db push` 直接同步 schema、不生成迁移文件，适合原型或不可迁移的库；`prisma db pull` 从已有数据库反向生成 schema，用于接入遗留库。生产环境用 `prisma migrate deploy`，只执行已有迁移、绝不生成新的。
 - **Prisma 映射不了的东西**：CHECK 约束、视图、触发器、部分索引、存储过程等 PG 特性无法在 `schema.prisma` 表达。它们依然存在于数据库里，但 `migrate dev` 生成迁移时可能感知不到——这类对象要手写进迁移 SQL，并接受"`prisma validate` 通过不代表数据库完全一致"。
@@ -1992,7 +2026,7 @@ node --env-file=.env scripts/check-relations.mjs
 
 刚完成 seed 时只有作者、没有文章，输出 `[]` 是正常结果。Day27 通过 API 创建文章后再运行，才能看到文章中的 `author` 对象；空数组不能证明关系查询的字段已验收。
 
-执行迁移之前检查 `DATABASE_URL` 指向个人练习库，确认备份策略和 `git status` 中迁移文件是预期内容。开发库新建模型用 `npx prisma migrate dev --name add_blog_models`；部署环境只应用已审阅的迁移：`npx prisma migrate deploy`。不要在部署时执行 `migrate dev`，也不要用 `db push` 替代需要留痕的迁移历史。
+执行迁移之前检查 `DATABASE_URL` 指向个人练习库，确认备份策略和 `git status` 中迁移文件是预期内容。博客模型已在第 25 天 `init_blog` 建好，今天没有 schema 变更，直接 `npx prisma migrate status` 确认 up to date 即可；此时执行 `migrate dev --name ...` 只会报 `Already in sync`，不会生成新迁移文件。第 40 天要检查的是此前已经产生的迁移文件，不是今天新建的。部署环境只应用已审阅的迁移：`npx prisma migrate deploy`。不要在部署时执行 `migrate dev`，也不要用 `db push` 替代需要留痕的迁移历史。
 
 ## 练习
 
@@ -2017,9 +2051,9 @@ const posts = await prisma.post.findMany({
 
 ## 原版对照阅读
 
-原版 Day26 用 15 个小节讲事务与 Prisma 陷阱，本讲义只演示了事务和 `include`。补三点：
+原版 Day26 展开更细，讲事务与 Prisma 陷阱，本讲义只演示了事务和 `include`。补三点：
 
-- **四种隔离级别**：`READ UNCOMMITTED`（能读到未提交脏数据）、`READ COMMITTED`（PG 默认，每次读到已提交的最新值）、`REPEATABLE READ`（同一事务内多次读一致）、`SERIALIZABLE`（事务像串行执行，最慢但最强）。越高级别越能防止并发异常，代价是更多的锁等待和重试。Prisma 可在 `$transaction` 的第二参数指定 `isolationLevel`。
+- **SQL 标准的四种隔离级别与 PG 的实际行为**：标准列出 `READ UNCOMMITTED`、`READ COMMITTED`（PG 默认，每条语句读到已提交的最新值）、`REPEATABLE READ`、`SERIALIZABLE`。**PostgreSQL 不实现真正的 `READ UNCOMMITTED`**：请求它会被静默提升为 `READ COMMITTED`，所以永远读不到未提交的脏数据；PG 的 `REPEATABLE READ` 是快照隔离（事务内始终看到同一快照），`SERIALIZABLE` 基于 SSI，冲突时抛 `40001` 并由应用重试。级别越高越能防止并发异常，代价是更多冲突检测与重试，而不只是「更多锁等待」。Prisma 用 `$transaction(fn, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable })` 指定；遇到序列化失败按有限次退避重试，是应用层责任。
 - **N+1 的真相**：先用 1 条查询取 20 篇文章，再为每篇查一次作者，就是 1+20 次往返。Prisma 的 `include` 会用一条 JOIN 或一次 `IN (...)` 批量取回关联，把它压成常数次查询。开启 `DEBUG=*` 观察 SQL 条数，是识别 N+1 最直接的办法。
 - **连接池**：每个 Prisma Client 实例维护一个连接池，默认大小约为 `num_cpus*2+1`。无服务器或高并发下连接数不够会排队，过多又会压垮 PostgreSQL（连接是昂贵进程）。生产常用 PgBouncer 池化，此时把 Prisma 的连接串指向池化端口。
 
@@ -2214,11 +2248,17 @@ async listPage(query: Record<string, string | undefined>) {
     { title: { contains: q, mode: 'insensitive' as const } },
     { body: { contains: q, mode: 'insensitive' as const } },
   ] } : {};
+  // sort / order 已过白名单校验。不要写 orderBy: { [sort]: order }：
+  // 计算键会让对象退化成 { [x: string]: string }，无法赋给 Prisma 的排序类型。
+  const direction: 'asc' | 'desc' = order === 'asc' ? 'asc' : 'desc';
+  const orderBy: Prisma.PostOrderByWithRelationInput[] = sort === 'title'
+    ? [{ title: direction }, { id: 'asc' }]
+    : [{ createdAt: direction }, { id: 'asc' }];
   const [total, items] = await this.prisma.$transaction([
     this.prisma.post.count({ where }),
     this.prisma.post.findMany({
       where, skip: (page - 1) * pageSize, take: pageSize,
-      orderBy: { [sort]: order },
+      orderBy,
       select: { id: true, title: true, createdAt: true, authorId: true },
     }),
   ]);
@@ -2226,7 +2266,7 @@ async listPage(query: Record<string, string | undefined>) {
 }
 ```
 
-需要从 `@nestjs/common` 导入 `BadRequestException`。在 controller 把原来的 `list()` 路由改成接收 `@Query() query: Record<string, string | undefined>` 并调用 `this.posts.listPage(query)`。直接按 `title` 排序时相同标题间顺序未定义，真实系统可增加 `id` 作为次排序键。
+从 `@nestjs/common` 导入 `BadRequestException`，从 `@prisma/client` 导入 `Prisma` 类型。在 controller 把原来的 `list()` 路由改成接收 `@Query() query: Record<string, string | undefined>` 并调用 `this.posts.listPage(query)`。直接按 `title` 排序时相同标题间顺序未定义，真实系统可增加 `id` 作为次排序键。
 
 ## 练习
 
@@ -2234,7 +2274,7 @@ async listPage(query: Record<string, string | undefined>) {
 
 ## 参考答案与验收
 
-合法参数应返回 `200`，字段包含 `items`、`total`、`page:1`、`pageSize:5`；命中项目依标题升序。非法参数各返回 `400`，消息分别说明 page 范围和 sort 不受支持。无匹配时 `items:[]`、`total:0`，不应返回 404。若 TypeScript 在动态 `orderBy` 报类型错误，改用白名单分支构造排序对象，而不要对 `query.sort` 使用类型断言绕过检查。
+合法参数应返回 `200`，字段包含 `items`、`total`、`page:1`、`pageSize:5`；命中项目依标题升序。非法参数各返回 `400`，消息分别说明 page 范围和 sort 不受支持。无匹配时 `items:[]`、`total:0`，不应返回 404。跟做里的 `orderBy` 用白名单分支构造，编译期就不依赖动态键；若自己改成 `{ [sort]: order }`，`npm run build` 会报 TS 类型错误，不要用 `as any` 之类的断言绕过检查。
 
 ## AI 搭档
 
@@ -2266,7 +2306,7 @@ async publish(id: number) {
 }
 ```
 
-为路由增加 `@Patch(':id/publish')`，沿用 `ParseIntPipe` 解析 ID，调用 Service 的 `publish`。使用两个终端几乎同时调用它，观察两次响应；当文章已发布时，两次都应返回同一文章的已发布状态，不应把后一次改回草稿。对“余额扣减”一类数值业务，不要照搬先查再改；应写成带条件的原子更新并检查受影响行数。
+为路由增加 `@Patch(':id/publish')`，沿用 `ParseIntPipe` 解析 ID，调用 Service 的 `publish`。使用两个终端几乎同时调用它，观察两次响应：两次都会成功且 `publishedAt` 非空，但在 READ COMMITTED 下可能是两个不同的时间（后写覆盖先写），不应把后一次改回草稿。要做到只发布一次，得用条件更新，见下面的答案。对“余额扣减”一类数值业务，不要照搬先查再改；应写成带条件的原子更新并检查受影响行数。
 
 ## 练习
 
@@ -2274,7 +2314,7 @@ async publish(id: number) {
 
 ## 参考答案与验收
 
-不存在记录应由应用转换成 `404`，对外为 Day19 统一格式。有效记录两次均成功且 `publishedAt` 非空。两次调用都可能返回「已发布」，但“先读后判”在 READ COMMITTED 下不能阻止并发覆盖：两个事务可能都读到草稿、再各自写入不同的 `publishedAt`，后写覆盖先写。它只能保证-readable 的状态判断（避免把已发布改回草稿），要保证只发布一次，需要用条件更新 `UPDATE ... WHERE publishedAt IS NULL` 并检查受影响行数，在 Prisma 中是带 `where` 条件的 `updateMany` 后看 `count`。本演示不要声称提供完整的审计或 exactly-once 保证。数据库不可用时记录为未能运行验证。
+不存在记录应由应用转换成 `404`，对外为 Day19 统一格式。有效记录两次调用都返回成功、`publishedAt` 非空，但值可能是两个不同的时间——这正是 READ COMMITTED 下的后写覆盖：两个事务都读到草稿、再各自写入不同的 `publishedAt`。「先读后判」只能避免把已发布改回草稿，做不到 exactly-once；要保证只发布一次，需要用条件更新 `UPDATE ... WHERE publishedAt IS NULL` 并检查受影响行数，在 Prisma 中是带 `where` 条件的 `updateMany` 后看 `count`，只有 `count === 1` 的那次算发布成功。本演示不要声称提供完整的审计或 exactly-once 保证。数据库不可用时记录为未能运行验证。
 
 ## AI 搭档
 
@@ -2305,8 +2345,8 @@ npx prisma migrate status
 - `GET /posts?page=1&pageSize=10&q=&sort=createdAt&order=desc`：分页检索。
 - `GET /posts/:id`：详情，不存在为 404。
 - `POST /posts`：创建，`title`、`body`、`authorId`；成功 201。
-- `PATCH /posts/:id`：部分更新，空对象 400。
-- `PATCH /posts/:id/publish`：设置发布时间。
+- `PATCH /posts/:id`：部分更新，空对象 400；需认证，仅作者本人或管理员。
+- `PATCH /posts/:id/publish`：设置发布时间；需认证，仅作者本人或管理员。
 - `DELETE /posts/:id`：删除，成功返回被删 ID。
 
 用 `curl` 创建并保存返回 ID，接着按序执行列表、详情、改标题、发布、删除、再查详情。成功外层为 `{ "data": ... }`，错误外层为 `{ "error": { "statusCode": ..., "message": ... } }`。分页对象下含 `items`、`total`、`page` 和 `pageSize`。
@@ -2691,7 +2731,7 @@ async remove(id: number, sub: string) {
 }
 ```
 
-删除条件也带作者编号，可避免检查和删除之间作者变化时误删。创建也必须查映射：从 `CreatePostDto` 删除 `authorId` 字段及装饰器，只保留 `title`、`body`；在原 `POST /posts` 加 `@UseGuards(JwtAuthGuard)`，接收 `@Req() req: AuthRequest`，改为调用 `this.posts.createForActor(dto, req.user!.sub)`。**把第 27 天 `PostsService` 里的旧 `create()` 整个删除**，再用下面的方法**替换**它（不是追加），并导入 `CreatePostDto`。如果只追加不删除，旧方法仍引用已被删除的 `dto.authorId`，`npm run build` 会报 TS 错误。其他编辑、发布路由也要按 `actor.authorId` 判断归属，不能直接比较 `sub` 与文章的 `authorId`。普通注册 DTO 不接收角色，管理员账号由受控运维流程设置。
+删除条件也带作者编号，可避免检查和删除之间作者变化时误删。创建也必须查映射：从 `CreatePostDto` 删除 `authorId` 字段及装饰器，只保留 `title`、`body`；在原 `POST /posts` 加 `@UseGuards(JwtAuthGuard)`，接收 `@Req() req: AuthRequest`，改为调用 `this.posts.createForActor(dto, req.user!.sub)`。**把第 27 天 `PostsService` 里的旧 `create()` 整个删除**，再用下面的方法**替换**它（不是追加），并导入 `CreatePostDto`。如果只追加不删除，旧方法仍引用已被删除的 `dto.authorId`，`npm run build` 会报 TS 错误。其他编辑、发布路由同样必须按 `User.authorId → Author.id` 的映射判断归属，不能直接比较 `sub` 与文章的 `authorId`；下面给出两条路由的完整实现。普通注册 DTO 不接收角色，管理员账号由受控运维流程设置。
 
 ```ts
 async createForActor(dto: CreatePostDto, sub: string) {
@@ -2707,6 +2747,69 @@ async createForActor(dto: CreatePostDto, sub: string) {
   });
 }
 ```
+
+## 编辑与发布也要做归属判断
+
+只给 `createForActor` 和 `removeForActor` 是不够的：若 `PATCH /posts/:id`、`PATCH /posts/:id/publish` 还保持第 27 天的裸实现，未登录也能改标题、发布任意文章，Day33/Day35 的权限模型会被整体绕过。两条路由都要加 `JwtAuthGuard`，从 `req.user!.sub` 查 `User.authorId` 映射，再用 `actor.authorId` 与 `Post.authorId` 比较；管理员由 `canDeletePost` 放行。Service 的更新条件同样要带 `authorId`，避免检查与写入之间作者变化。
+
+```ts
+// src/posts/posts.controller.ts：补两条受保护路由（其余路由保持原有实现）
+@Patch(':id')
+@UseGuards(JwtAuthGuard)
+async updateForActor(@Param('id', ParseIntPipe) id: number,
+  @Body() dto: UpdatePostDto, @Req() req: AuthRequest) {
+  return this.posts.updateForActor(id, dto, req.user!.sub);
+}
+
+@Patch(':id/publish')
+@UseGuards(JwtAuthGuard)
+async publishForActor(@Param('id', ParseIntPipe) id: number,
+  @Req() req: AuthRequest) {
+  return this.posts.publishForActor(id, req.user!.sub);
+}
+```
+
+```ts
+// src/posts/posts.service.ts：复用 Day33 的 actor 映射与 canDeletePost 规则
+private async actorFor(sub: string) {
+  if (!/^[1-9]\d*$/.test(sub) || !Number.isSafeInteger(Number(sub))) {
+    throw new UnauthorizedException();
+  }
+  const actor = await this.prisma.user.findUnique({
+    where: { id: Number(sub) }, select: { authorId: true, role: true },
+  });
+  if (!actor) throw new UnauthorizedException();
+  return actor;
+}
+
+async updateForActor(id: number, dto: UpdatePostDto, sub: string) {
+  const actor = await this.actorFor(sub);
+  const post = await this.prisma.post.findUnique({ where: { id }, select: { authorId: true } });
+  if (!post) throw new NotFoundException();
+  if (!canDeletePost(actor, post)) throw new ForbiddenException();
+  const result = await this.prisma.post.updateMany({
+    where: actor.role === 'ADMIN' ? { id } : { id, authorId: actor.authorId },
+    data: { ...dto },
+  });
+  if (result.count === 0) throw new NotFoundException();
+  return this.prisma.post.findUniqueOrThrow({ where: { id } });
+}
+
+async publishForActor(id: number, sub: string) {
+  const actor = await this.actorFor(sub);
+  const post = await this.prisma.post.findUnique({ where: { id }, select: { authorId: true } });
+  if (!post) throw new NotFoundException();
+  if (!canDeletePost(actor, post)) throw new ForbiddenException();
+  const result = await this.prisma.post.updateMany({
+    where: actor.role === 'ADMIN' ? { id } : { id, authorId: actor.authorId },
+    data: { publishedAt: new Date() },
+  });
+  if (result.count === 0) throw new NotFoundException();
+  return this.prisma.post.findUniqueOrThrow({ where: { id } });
+}
+```
+
+把 `UpdatePostDto`、`Patch`、`Body`、`Param`、`ParseIntPipe`、`Req`、`UseGuards` 与三个异常补进对应文件的导入；`canDeletePost` 判断的是同一组「管理员放行 / 普通用户必须是作者」规则，也可以把它重命名为 `canManagePost` 后复用。第 30 天接口清单里的两条 `PATCH` 也应标注「需认证」。
 
 ## 练习
 
@@ -2960,16 +3063,25 @@ import { RedisService } from './redis.service';
 export class CacheModule {}
 ```
 
-`PostsService.listPublic()` 先读取 `blog:posts:public:v1`。有缓存就 `JSON.parse`，解析失败先删除坏键再查库；无缓存查 Prisma，成功后写入 30 秒。沿用前课 `publishedAt` 非空表示发布、`body` 表示正文的模型。要让两条路径返回同样的形状：缓存里的 `createdAt` 经 `JSON.parse` 后是字符串，Prisma 查出来是 `Date`，这里统一在返回前转成 ISO 字符串。Redis 读写异常被捕获，不能因为缓存故障让公开博客整体 500。缓存只保存公开字段。
+`PostsService.listPublic()` 先读取 `blog:posts:public:v1`。`RedisService.get()` 未命中返回 `null`，而 `JSON.parse(null)` 会返回 `null` 却不抛异常，所以必须先判空再解析；有合法缓存才返回，解析失败或形状不对先删除坏键再查库；无缓存查 Prisma，成功后写入 30 秒。沿用前课 `publishedAt` 非空表示发布、`body` 表示正文的模型。要让两条路径返回同样的形状：缓存里的 `createdAt` 经 `JSON.parse` 后是字符串，Prisma 查出来是 `Date`，这里统一在返回前转成 ISO 字符串。Redis 读写异常被捕获，不能因为缓存故障让公开博客整体 500。缓存只保存公开字段。
 
 ```ts
 async listPublic() {
   const key = 'blog:posts:public:v1';
   try {
     const cached = await this.redis.get(key);
-    const parsed = JSON.parse(cached) as { id: number; title: string; body: string; authorId: number; createdAt: string }[];
-    return parsed;
-  } catch { await this.redis.del(key).catch(() => undefined); }
+    // 关键：JSON.parse(null) 返回 null 而不抛异常，必须先判空；
+    // 否则缓存未命中时不会进 catch，会直接 return null，下面的查库永远不执行。
+    if (cached !== null) {
+      const parsed = JSON.parse(cached) as { id: number; title: string; body: string; authorId: number; createdAt: string }[];
+      if (Array.isArray(parsed)) return parsed;
+      // 形状不对也按坏键处理
+      await this.redis.del(key).catch(() => undefined);
+    }
+  } catch {
+    // JSON 解析失败或 Redis 异常：删除坏键，继续走数据库
+    await this.redis.del(key).catch(() => undefined);
+  }
 
   const posts = await this.prisma.post.findMany({
     where: { publishedAt: { not: null } },
@@ -2987,7 +3099,7 @@ async listPublic() {
 
 ## 练习
 
-在 `GET /posts/public` 接入 `listPublic()`，分别打开和关闭 `CACHE_ENABLED` 请求两次。打开时可以用 Redis CLI 的 `GET blog:posts:public:v1` 观察键；没有 Redis 时确认 API 仍从 PostgreSQL 返回同样结果。新增一篇已发布 `Post` 后立刻再次请求列表。
+在 `GET /posts/public` 接入 `listPublic()` 时，先确认控制器里静态路由 `@Get('public')` 声明在 `@Get(':id')` **之前**；否则 `public` 会先命中 `ParseIntPipe` 变成 400，缓存代码根本不会被调用。分别打开和关闭 `CACHE_ENABLED` 请求两次。打开时可以用 Redis CLI 的 `GET blog:posts:public:v1` 观察键；没有 Redis 时确认 API 仍从 PostgreSQL 返回同样结果。新增一篇已发布 `Post` 后立刻再次请求列表。
 
 ## 参考答案与验收
 
@@ -3179,7 +3291,7 @@ async reindex(id: number, sub: string) {
 
 ## 参考答案与验收
 
-管理员提交有效文章编号时应返回 202 和任务标识；普通用户返回 403，未登录返回 401，不存在文章返回 404。队列选项应有 `attempts: 3` 或经过明确评估的更小值，退避时间大于 0，并设置完成/失败清理策略。集成环境可观察三次失败后进入 failed；学习版不连接 Redis 时，用 mock Queue 断言 `add('refresh', ...)` 被调用一次，并检查 data 仅含允许字段。队列 Redis 断开时，API 应返回明确的 503 或统一错误，而不是假装任务已完成。
+管理员提交有效文章编号时应返回 202 和任务标识；普通用户返回 403，未登录返回 401，不存在文章返回 404。队列选项应有 `attempts: 3` 或经过明确评估的更小值，退避时间大于 0，并设置完成/失败清理策略。集成环境可观察：前两次抛错、第三次成功时任务最终 completed；只有三次都失败才进入 failed；学习版不连接 Redis 时，用 mock Queue 断言 `add('refresh', ...)` 被调用一次，并检查 data 仅含允许字段。队列 Redis 断开时，API 应返回明确的 503 或统一错误，而不是假装任务已完成。
 
 ## AI 搭档
 
@@ -3228,7 +3340,7 @@ export function safeUploadName(mimetype: string, originalname: string) {
 }
 ```
 
-先在 `api/prisma/schema.prisma` 追加封面元数据模型，并在 `api` 执行 `npx prisma migrate dev --name post_cover_meta`。这个迁移是第 40 天里程碑要检查的对象；生产版本还应补上到 `Post` / `User` 的外键，这里用整数 ID 保持练习库可独立迁移。
+先在博客项目根目录的 `prisma/schema.prisma` 追加封面元数据模型，并在项目根执行 `npx prisma migrate dev --name post_cover_meta`（`api/prisma/` 是第 47 天起协作任务板的路径，博客项目用 `prisma/`，照抄会建在错误目录）。这个迁移是第 40 天里程碑要检查的对象；生产版本还应补上到 `Post` / `Author` 的外键，这里用整数 ID 保持练习库可独立迁移。`PostCover.ownerId` 存的是 `Author.id`，不是 JWT 里的 `User.id`。
 
 ```prisma
 model PostCover {
@@ -3244,7 +3356,7 @@ model PostCover {
 }
 ```
 
-在 `src/uploads/uploads.controller.ts` 用 `FileInterceptor`。`limits.fileSize` 是 Multer 层限制，仍需在业务层检查 `file.size`；设置字段名、数量和请求大小上限。上传路由必须有 JWT Guard，`User` 身份从 `req.user.sub` 得到，不从表单接收 ownerId。隔离目录要由后端提前创建并限制权限，文件保存成功后写 `Post` 的图片元数据。数据库写入失败时删除临时文件。
+在 `src/uploads/uploads.controller.ts` 用 `FileInterceptor`。`limits.fileSize` 是 Multer 层限制，仍需在业务层检查 `file.size`；设置字段名、数量和请求大小上限。上传路由必须有 JWT Guard，`User` 身份从 `req.user.sub` 得到，不从表单接收 ownerId；`sub` 是 `User.id`，要与文章 `authorId`（`Author.id`）比较必须先查 `User.authorId` 映射。隔离目录要由后端提前创建并限制权限，文件保存成功后写 `Post` 的图片元数据。数据库写入失败时删除临时文件。
 
 ```ts
 // src/uploads/uploads.controller.ts（完整文件）
@@ -3297,8 +3409,14 @@ export class UploadsService {
   constructor(private readonly prisma: PrismaService) {}
 
   async attachCover(postId: number, file: Express.Multer.File, sub: string) {
-    const ownerId = Number(sub);
-    if (!Number.isSafeInteger(ownerId) || ownerId < 1) throw new BadRequestException();
+    const userId = Number(sub);
+    if (!Number.isSafeInteger(userId) || userId < 1) throw new BadRequestException();
+    // sub 是 User.id，Post.authorId 是 Author.id；必须先按 Day32 的映射查出 authorId。
+    const actor = await this.prisma.user.findUnique({
+      where: { id: userId }, select: { authorId: true },
+    });
+    if (!actor?.authorId) throw new ForbiddenException();
+    const ownerId = actor.authorId;
     const post = await this.prisma.post.findUnique({ where: { id: postId } });
     if (!post) throw new NotFoundException();
     if (post.authorId !== ownerId) throw new ForbiddenException();
@@ -3358,17 +3476,25 @@ export class UploadsModule {}
 
 ## 跟做
 
-先执行 `npm i zod`，再在 `src/config/env.validation.ts` 集中校验配置。缓存开关必须有明确语义；启用 Redis 缓存时缺少 URL 直接启动失败，关闭时列表只走 PostgreSQL。队列是否可用取决于是否接入第 38 天模块，与缓存开关独立。不要在校验失败时打印整份 `process.env`。
+先执行 `npm i zod`，再在 `src/config/env.validation.ts` 集中校验配置。这里把 `DATABASE_URL`、`UPLOAD_MAX_BYTES`、`WEB_ORIGIN`、`OIDC_*`、`PORT`、`HOST` 一并纳入；`UPLOAD_MAX_BYTES` 定义后**必须在第 39 天的上传拦截器里读取**，否则校验通过却仍硬编码 5 MiB，等于没有生效。缓存开关必须有明确语义；启用 Redis 缓存时缺少 URL 直接启动失败，关闭时列表只走 PostgreSQL。队列是否可用取决于是否接入第 38 天模块，与缓存开关独立。不要在校验失败时打印整份 `process.env`。
 
 ```ts
 import { z } from 'zod';
 
 export const envSchema = z.object({
   NODE_ENV: z.enum(['development', 'test', 'production']).default('development'),
+  PORT: z.coerce.number().int().min(1).max(65535).default(3000),
+  HOST: z.string().min(1).default('127.0.0.1'),
+  DATABASE_URL: z.string().url(),
   JWT_SECRET: z.string().min(32),
   CACHE_ENABLED: z.enum(['true', 'false']).default('false'),
   REDIS_URL: z.string().url().optional(),
   UPLOAD_ROOT: z.string().min(1).default('./var/quarantine'),
+  UPLOAD_MAX_BYTES: z.coerce.number().int().min(1).max(10 * 1024 * 1024).default(5 * 1024 * 1024),
+  WEB_ORIGIN: z.string().url().optional(),
+  OIDC_ISSUER: z.string().url().optional(),
+  OIDC_CLIENT_ID: z.string().optional(),
+  OIDC_CLIENT_SECRET: z.string().optional(),
 });
 
 export function validateEnv(input: Record<string, unknown>) {
@@ -3487,12 +3613,12 @@ docker run --rm --name blog-api -p 127.0.0.1:3000:3000 --env-file .env blog-api:
 
 ## 原版对照阅读
 
-原版 Day41 用 9 个小节把 Dockerfile 逐行讲透，本讲义给的是一份可用镜像。补四点原理：
+原版 Day41 展开更细，把 Dockerfile 逐行讲透，本讲义给的是一份可用镜像。补四点原理：
 
 - **镜像 ≠ 容器**：镜像是只读的分层文件系统模板，容器是镜像的运行实例（可写层）。`docker build` 产出镜像，`docker run` 才产生容器。每一条 Dockerfile 指令生成一层，层数影响体积与缓存。
-- **多阶段构建**：`deps` 装全部依赖、`build` 编译 TypeScript、`runner` 只拷编译产物和生产依赖。最终镜像不含 devDependencies、源码和构建工具，体积和攻击面都大幅缩小。
+- **多阶段构建**：原版镜像是 `deps` 装全部依赖、`build` 编译 TypeScript、`runner` 只拷产物三段；本文 Dockerfile 是 `base/build/migrate/production-deps/runtime` 五阶段（`migrate` 段供第 42 天的一次性迁移服务复用，`production-deps` 单独装生产依赖）。共同点是最终镜像不含 devDependencies、源码和构建工具，体积和攻击面都大幅缩小；阶段名按本文 Dockerfile 对照，不要照抄原版。
 - **缓存友好的指令顺序**：把 `COPY package*.json` + `npm ci` 放在 `COPY .` 之前。源码频繁变动时，依赖层因内容没变而命中缓存，不必每次重装几百个包。
-- **alpine + Prisma 的经典坑**：alpine 用 musl libc，而 Prisma 的查询引擎默认按 glibc 编译，会出现 `libssl` / `openssl` 加载失败。解法是在 schema 里设 `binaryTargets = ["native", "linux-musl-openssl-3.0.x"]`，或在 runner 装 `openssl`。运行阶段还要用非 root 用户、以 `tini` 作 PID 1 转发信号，才能让 `SIGTERM` 触发优雅关闭。
+- **原版 alpine 镜像的坑（本文已规避）**：原版用 alpine（musl libc），Prisma 查询引擎默认按 glibc 编译，会出现 `libssl` / `openssl` 加载失败，其解法是 schema 里设 `binaryTargets = ["native", "linux-musl-openssl-3.0.x"]`。但本文用 `node:22-bookworm-slim`（glibc），不要照着给 Debian 镜像加 musl 引擎目标，也不要凭空装 `tini`。无论哪种镜像，运行阶段都应用非 root 用户，并让 Node 进程作为 PID 1 正确接收 `SIGTERM`（或用 `dumb-init` 之类转发信号）才能优雅关闭。
 
 ## AI 搭档
 
@@ -3574,10 +3700,10 @@ docker compose up -d api
 
 ## 原版对照阅读
 
-原版 Day42 用 10 个小节讲 Compose，本讲义给了一份能起来的配置。补四点：
+原版 Day42 展开更细，讲 Compose，本讲义给了一份能起来的配置。补四点：
 
 - **`depends_on` 只管启动顺序，不管"准备好"**：单纯 `depends_on: [db]` 只保证 db 容器先创建，不代表 PostgreSQL 已能接受连接。要用 `condition: service_healthy` 配合 healthcheck，或让应用自己重试连接。
-- **迁移单独作为一个 job**：不要让每个 API 实例启动时都跑 `migrate deploy`——多实例并发迁移会互相冲突。用一次性 `migrate` 服务跑完再启动 api，失败即 fail-fast。
+- **迁移单独作为一个 job**：不要让每个 API 实例启动时都跑 `migrate deploy`——多实例并发迁移会互相冲突。本文把 `migrate` 写成一次性服务，但 `api.depends_on` 只有 `db: service_healthy`，**没有** `migrate: service_completed_successfully`；顺序靠下面「`up -d db` → `run --rm migrate` → `up -d api`」的手动分步保证，迁移失败就停下排错、不启动 API。若改成 Compose 自动保证顺序，需补该依赖条件并给 `migrate` 设 `restart: "no"`，同时删掉手动 `run` 那一步，避免迁移跑两次。
 - **存活 vs 就绪**：liveness（存活）回答"要不要重启我"，进程死锁时失败；readiness（就绪）回答"能不能给我导流"，依赖未就绪时失败。编排器据此分别决定重启和流量切换。健康检查要探真实依赖（DB 必查），但别让 Redis 抖动连带拖垮整个 API。
 - **容器里的 `localhost` 是容器自己**：连同 compose 的其他服务要用服务名（如 `db:5432`），不是 `localhost`。数据要放具名卷，否则 `docker compose down` 后容器被删、数据一起丢失。
 
@@ -3649,12 +3775,12 @@ jobs:
 
 ## 原版对照阅读
 
-原版 Day43 用 14 个小节讲 CI/CD，本讲义只给了一份 workflow。补四点：
+原版 Day43 展开更细，讲 CI/CD，本讲义只给了一份 workflow。补四点：
 
 - **CI 与 CD 是两件事**：CI（持续集成）是每次 push 都跑的"闸门"——类型检查、单测、构建；CD（持续交付/部署）是通过闸门后把产物推到仓库或上线。把两者放一个 job 会让"测试失败"仍可能发布。
 - **service container**：CI 里的 PostgreSQL/Redis 用 `services:` 声明，与本机 compose 同构，runner 通过服务名访问。没有它，集成测试会因为连不上数据库而失败。
 - **迁移必须在测试之前**：测试库也是空库，先 `prisma migrate deploy` 建好表，再跑测试，呼应第 42 天的顺序原则。
-- **为什么用 `tsc --noEmit` 当 lint**：TypeScript 编译器本身就做静态类型检查，`--noEmit` 只检查不产出文件，比另配 ESLint 更快给出"类型是否自洽"的结论。第三方 action 要锁定到具体版本或 commit SHA，避免上游被篡改后影响构建。
+- **类型检查由构建命令承担**：本文 workflow 的五步里没有单独的 `lint`/`typecheck` 步骤，是 `npm run build`（`tsc --noEmit && vite build`，Nest 侧为 `nest build`）在做全量静态类型检查——类型不过就构建失败。`tsc --noEmit` 只检查不产出文件；若另配 ESLint，它管的是代码风格与可疑写法，与类型检查不是一回事。第三方 action 在生产流水线里建议锁定到具体 commit SHA（本文为可读性用 `@v4` 这类大版本 tag），避免上游被篡改后影响构建。
 
 ## AI 搭档
 
@@ -3692,7 +3818,7 @@ jobs:
 - **为什么这套镜像不上 Vercel**：Vercel 面向 Serverless 函数，有执行时长上限、无常驻进程，跑不了 WebSocket 网关和 BullMQ worker。需要常驻服务 + 后台 worker 的项目更适合容器平台（Fly.io / Railway / Cloud Run）。
 - **托管 PostgreSQL 与 PgBouncer**：Supabase / Neon 等托管库常内置 PgBouncer 做连接复用。注意 Prisma 在事务模式下需要 `?pgbouncer=true`，且准备好的语句可能不兼容——按平台文档设置连接串参数。
 - **迁移在生产谁跑**：不能在 Web 启动时跑迁移（多实例并发冲突），应在发布流水线里作为独立、一次性步骤执行，且遵循"先兼容后清理"——先加可空列、部署新代码、再删旧列，保证新旧版本能共存，才谈得上回滚。
-- **健康检查映射**：`/health/live` 给平台的重启探针，只查进程本身；`/health/ready` 给负载均衡的导流探针，查 DB/Redis 依赖。平台自动停机时别把 BullMQ worker 一起饿死——它要处理完在途作业再退出。
+- **健康检查映射**：`/health/live` 给平台的重启探针，只查进程本身；`/health/ready` 给负载均衡的导流探针，但**只查必要依赖（PostgreSQL）**——第 45 天明确 Redis 是可选缓存，它抖动不应让 readiness 失败、把实例摘出导流。平台自动停机时别把 BullMQ worker 一起饿死——它要处理完在途作业再退出。
 
 ## AI 搭档
 
@@ -3791,7 +3917,7 @@ export class LoggingInterceptor implements NestInterceptor {
 
 ## 原版对照阅读
 
-原版 Day45 用 11 个小节讲可观测性，本讲义只给了 HealthController。补四点：
+原版 Day45 展开更细，讲可观测性，本讲义只给了 HealthController。补四点：
 
 - **日志是给机器和给人两类读者读的**：结构化日志（每行一个 JSON 对象，含 `time`/`level`/`msg`/`requestId` 等字段）便于聚合检索；散文式日志只有人读得懂、难以过滤。Pino 是 Node 的事实标准，因为序列化开销低。
 - **`requestId` 串联一次请求的所有日志**：在入口中间件生成（或从入站 `X-Request-Id` 继承），用 AsyncLocalStorage 贯穿整个异步调用链，每条日志自动带上它。出问题时按 requestId 一搜，就能还原完整链路。
@@ -3869,7 +3995,7 @@ volumes:
 ```bash
 node -v
 npx --yes --package @nestjs/cli@11 nest new api --package-manager npm --skip-git
-npm create vite@8 -- web --template react-ts
+npm create vite@6 -- web --template react-ts
 # 如选了上面的 Compose 方案，在根目录运行
  docker compose up -d postgres
 cd api
@@ -3877,7 +4003,7 @@ npm install @prisma/client@6.19.0 @nestjs/config@4 class-validator class-transfo
 npm install --save-dev prisma@6.19.0
 ```
 
-在 `api/.env` 写 `DATABASE_URL=postgresql://board:board_dev_only@127.0.0.1:5432/board?schema=public`，确认 `api/.gitignore` 忽略 `.env`。提交契约时可保留仅含变量名的 `.env.example`。先创建 `api/prisma/schema.prisma`，今天只生成客户端，明天加入表并运行迁移。CLI 和客户端使用同一 6.19 补丁号，后面保持锁文件一致；若脚手架询问是否直接安装前端依赖，可先跳过。
+在 `api/.env` 写 `DATABASE_URL=postgresql://board:board_dev_only@127.0.0.1:5432/board?schema=public`，确认 `api/.gitignore` 忽略 `.env`。提交契约时可保留仅含变量名的 `.env.example`。先创建 `api/prisma/schema.prisma`，今天只生成客户端，明天加入表并运行迁移。CLI 和客户端使用同一 6.19 补丁号，后面保持锁文件一致；若脚手架询问是否直接安装前端依赖，可先跳过。前端脚手架固定用 Vite 6（`npm create vite@6`），与配套包 `day54-web/package.json` 锁定的 `vite ^6.4.0`、`@vitejs/plugin-react ^4.7`、单份 `tsconfig.json` 与 `tsc --noEmit && vite build` 一致；直接用更新版本的 `create vite` 会得到 `tsc -b` 与不同的 tsconfig 拆分，覆盖源码前请先对齐构建脚本。
 
 ```prisma
 // api/prisma/schema.prisma，后续 model 都追加到这个文件
@@ -3915,7 +4041,7 @@ async health() {
 
 在 `api/src/main.ts`，`listen` 前加入 `app.setGlobalPrefix('api')`、`app.enableShutdownHooks()` 和 `app.useGlobalPipes(new ValidationPipe({whitelist:true,forbidNonWhitelisted:true,transform:true}))`，从 `@nestjs/common` 导入 `ValidationPipe`。本机用 `await app.listen(Number(process.env.PORT ?? 3000), process.env.HOST ?? '127.0.0.1')`。在 `api` 执行 `npx prisma generate`、`npm run start:dev`，另开终端请求 `curl -i http://127.0.0.1:3000/api/health`，应见 `200` 与 `{"ok":true}`。
 
-将下面组件放进 `web/src/App.tsx`，保留生成的 `main.tsx`。浏览器从 `index.html` 的根节点启动，`main.tsx` 把 `App` 挂上去，`{title}` 把变量显示在 HTML 标题里。在 `web/vite.config.ts` 的 `defineConfig` 对象内保留 `plugins`，添加 `server: { host:'127.0.0.1', proxy: { '/api':'http://127.0.0.1:3000', '/board': { target:'http://127.0.0.1:3000', ws:true } } }`。`/board` 的 `ws:true` 是第 51/54 天实时订阅通过本机代理所必需，只配 `/api` 会导致 Socket.IO 连不上。
+将下面组件放进 `web/src/App.tsx`，保留生成的 `main.tsx`。浏览器从 `index.html` 的根节点启动，`main.tsx` 把 `App` 挂上去，`{title}` 把变量显示在 HTML 标题里。在 `web/vite.config.ts` 的 `defineConfig` 对象内保留 `plugins`，添加 `server: { host:'127.0.0.1', proxy: { '/api':'http://127.0.0.1:3000', '/socket.io': { target:'http://127.0.0.1:3000', ws:true } } }`。关键在第 51/54 天的实时链路：网关的 `namespace:'/board'` 是命名空间，Socket.IO 的 HTTP 握手端点固定是 `/socket.io/`，因此代理必须覆盖 `/socket.io`；只代理 `/api` 或只代理 `/board`，握手请求都到不了 Nest。客户端 `io('/board', { path:'/socket.io', ... })` 的第一个参数是 namespace，第二个参数里的 `path` 才是握手路径，两者不要混为一谈。
 
 ```tsx
 // web/src/App.tsx
@@ -4543,7 +4669,7 @@ curl -i -H "Authorization: Bearer $TOKEN" "$BASE?status=todo&limit=1&offset=0"
 
 ## 跟做
 
-在 `api` 安装 `npm install @nestjs/websockets@11 @nestjs/platform-socket.io@11 socket.io@4`，保持 Socket.IO 与 Nest 11 兼容。将网关放在 `api/src/board.gateway.ts`，并在 `AppModule.providers` 注册。这里只发送任务 ID 与动作，不广播标题、令牌或整份任务；前端收到后请求列表刷新。
+在 `api` 安装 `npm install @nestjs/websockets@11 @nestjs/platform-socket.io@11 socket.io@4`，保持 Socket.IO 与 Nest 11 兼容。将网关放在 `api/src/board.gateway.ts`，并在 `AppModule.providers` 注册。这里只发送任务 ID 与动作，不广播标题、令牌或整份任务；前端收到后请求列表刷新。`namespace:'/board'` 只是命名空间，握手端点仍是默认的 `/socket.io/`，本机 Vite 代理必须包含 `/socket.io`（见第 47 天）；下面显式写出 `path` 是为了让两端对照更清楚，值与默认值相同。
 
 ```ts
 // api/src/board.gateway.ts
@@ -4556,7 +4682,7 @@ import { JwtService } from '@nestjs/jwt';
 import { Server, Socket } from 'socket.io';
 import { PrismaService } from './prisma.service';
 
-@WebSocketGateway({ namespace: '/board', cors: { origin: ['http://127.0.0.1:5173'] } })
+@WebSocketGateway({ namespace: '/board', path: '/socket.io', cors: { origin: ['http://127.0.0.1:5173'] } })
 export class BoardGateway implements OnGatewayConnection {
   @WebSocketServer() server!: Server;
   constructor(private jwt: JwtService, private db: PrismaService) {}
@@ -4631,7 +4757,37 @@ model Notification {
 }
 ```
 
-沿用第 38 天的 `@nestjs/bullmq`：先在 `AppModule` 加入 `BullModule.forRoot({ connection: { url: process.env.REDIS_URL } })`，再在 `NotificationsModule` 注册伫列。下面的三个档案是可编译的最小实作；不要把裸 `new Worker()` 片段贴进 Nest 专案，那会和第 38 天的写法冲突。
+沿用第 38 天的 `@nestjs/bullmq`：`BullModule.forRoot` 的 `connection` 是 ioredis 的 `RedisOptions`，**没有 `url` 字段**，写 `{ url: process.env.REDIS_URL }` 会报 TS 多余属性，运行时还会被忽略、连到默认 `127.0.0.1:6379`，到第 55 天的 `rediss://` 远端就完全失效。把 `REDIS_URL` 用 `new URL()` 拆成 host/port/账号/密码/TLS（与第 38 天 `src/queue/queue.module.ts` 同一套逻辑），在 `AppModule` 注册全局连接，再在 `NotificationsModule` 注册伫列。下面的三个档案是可编译的最小实作；不要把裸 `new Worker()` 片段贴进 Nest 专案，那会和第 38 天的写法冲突。
+
+```ts
+// api/src/redis/redis-options.ts：把 REDIS_URL 拆成 ioredis 的 RedisOptions
+import type { RedisOptions } from 'ioredis';
+
+export function redisOptions(raw: string): RedisOptions {
+  const url = new URL(raw);
+  if (!['redis:', 'rediss:'].includes(url.protocol)) throw new Error('Redis 协议无效');
+  const db = Number(url.pathname.slice(1) || '0');
+  if (!Number.isInteger(db) || db < 0) throw new Error('Redis DB 无效');
+  return {
+    host: url.hostname,
+    port: Number(url.port || 6379),
+    db,
+    username: url.username ? decodeURIComponent(url.username) : undefined,
+    password: url.password ? decodeURIComponent(url.password) : undefined,
+    ...(url.protocol === 'rediss:' ? { tls: {} } : {}),
+    maxRetriesPerRequest: null,
+    enableOfflineQueue: false,
+  };
+}
+
+// api/src/app.module.ts 的 imports 里：
+// BullModule.forRootAsync({
+//   imports: [ConfigModule], inject: [ConfigService],
+//   useFactory: (config: ConfigService) => ({
+//     connection: redisOptions(config.getOrThrow<string>('REDIS_URL')),
+//   }),
+// }),
+```
 
 ```ts
 // api/src/notifications/notifications.module.ts
@@ -4653,7 +4809,7 @@ export class NotificationsModule {}
 import { InjectQueue } from '@nestjs/bullmq';
 import { Injectable } from '@nestjs/common';
 import { Queue } from 'bullmq';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class NotificationsService {
@@ -4695,7 +4851,7 @@ export class NotificationsService {
 import { Processor, WorkerHost } from '@nestjs/bullmq';
 import { Logger } from '@nestjs/common';
 import { Job } from 'bullmq';
-import { PrismaService } from '../prisma/prisma.service';
+import { PrismaService } from '../prisma.service';
 
 @Processor('notifications')
 export class NotificationsProcessor extends WorkerHost {
@@ -4737,7 +4893,7 @@ export class NotificationsProcessor extends WorkerHost {
 
 ## 跟做
 
-在 `BoardService` 中加入统计方法，并在 `api/src/projects.ts` 的 `TasksController` 加入 `GET .../tasks/stats` 路由。此处的原生 SQL 片段放在已有 `BoardService`，表名需使用 Prisma 预设的 PostgreSQL 名称；如果专案设定了 `@@map` 或 `@map`，按实际资料表改名。参数化模板不可改成字串拼接。
+在 `BoardService` 中加入统计方法，并在 `api/src/projects.ts` 的 `TasksController` 加入 `GET .../tasks/stats` 路由。任务板工程的 `PrismaService` 是 `src/prisma.service.ts`（博客工程才是 `src/prisma/prisma.service.ts`），`src/notifications/` 下的文件相对导入写 `../prisma.service`，不要混用两个工程的目录结构。此处的原生 SQL 片段放在已有 `BoardService`，表名需使用 Prisma 预设的 PostgreSQL 名称；如果专案设定了 `@@map` 或 `@map`，按实际资料表改名。参数化模板不可改成字串拼接。
 
 ```ts
 // api/src/projects.ts，BoardService 内
@@ -4791,7 +4947,7 @@ stats(@Param('teamId') t: string, @Param('projectId') p: string) {
 
 ## 跟做
 
-在 `web` 执行 `npm install socket.io-client`，新增 `web/src/api.ts`。这是刻意精简的本机教学 API 用户端。Access token 暂存在记忆体，重整后需重新登入；正式产品应评估安全的 HttpOnly Cookie、CSRF 防护、CSP 与 HTTPS，不要长期把 token 放 localStorage。把 `web/src/App.tsx` 的启动画面替换成以下流程，CSS 继续放在既有 `App.css`。
+在 `web` 执行 `npm install socket.io-client`，新增 `web/src/api.ts`。这是刻意精简的本机教学 API 用户端；`io('/board', { path:'/socket.io' })` 里 `/board` 是命名空间、`/socket.io` 是握手路径，与第 47 天 Vite 代理的 `/socket.io` 规则对应。Access token 暂存在记忆体，重整后需重新登入；正式产品应评估安全的 HttpOnly Cookie、CSRF 防护、CSP 与 HTTPS，不要长期把 token 放 localStorage。把 `web/src/App.tsx` 的启动画面替换成以下流程，CSS 继续放在既有 `App.css`。
 
 ```ts
 // web/src/api.ts
@@ -4845,6 +5001,7 @@ export function connectBoard(
 ) {
   socket?.disconnect();
   const next = io('/board', {
+    path: '/socket.io',
     auth: { token: getToken() ?? '' },
     transports: ['websocket'],
   });
@@ -5097,7 +5254,7 @@ export default function Page() {
 
 ## 跟做
 
-在 `api/.env.example` 只写变数名称和明显的占位文字，不放可用凭证；确认 `.env` 被忽略且不在版本控制中。云端的资料库需启用 TLS 并限制网路存取，Redis 不对公网开放。生产迁移使用 `prisma migrate deploy`，不要在伺服器启动流程中使用开发用的 `migrate dev`。映像或平台建置时先 `prisma generate`，再建置 API。
+在 `api/.env.example` 只写变数名称和明显的占位文字，不放可用凭证；确认 `.env` 被忽略且不在版本控制中。`HOST=0.0.0.0` 不要漏：第 41 天要求容器内监听 `0.0.0.0`，而第 47 天代码默认 `127.0.0.1`，只绑定回环地址时容器外根本连不上。云端的资料库需启用 TLS 并限制网路存取，Redis 不对公网开放。`.env.example` 里的 `rediss://USER:PASSWORD@HOST:6379` 由第 52 天的 `redisOptions()` 用 `new URL()` 拆成 host/port/账号/密码并自动启用 `tls`，不要把整条 URL 直接塞给 `connection`。生产迁移使用 `prisma migrate deploy`，不要在伺服器启动流程中使用开发用的 `migrate dev`。映像或平台建置时先 `prisma generate`，再建置 API。
 
 ```dotenv
 # api/.env.example，只能是占位值
@@ -5105,6 +5262,7 @@ DATABASE_URL=postgresql://USER:PASSWORD@HOST:5432/DB?schema=public
 REDIS_URL=rediss://USER:PASSWORD@HOST:6379
 JWT_SECRET=replace-with-platform-secret
 PORT=3000
+HOST=0.0.0.0
 WEB_ORIGIN=https://example.invalid
 ```
 
@@ -5124,19 +5282,19 @@ npm run build
 
 ## 练习
 
-写一份自己的部署前核对清单：Node runtime 22 / 24 / 26 LTS、资料库版本 PG16、Prisma 6.19.x、TLS 连线、秘密设定、migration、Web API base/proxy、健康检查和回滚策略。用本机假值执行 build，并在测试资料库套 migration。**本机生产发布演练**：用一份 `docker-compose.prod.yml` 把 API、Web、PG、Redis 与迁移 job 一起起来，观察迁移先完成、API 的 `/health/ready` 转绿再导流；分别停掉 PG 和 Redis，确认探针只停止导流、数据仍在、worker 不被误判为不健康；最后 `docker compose down` 清理。不要建立云端资源、不要输入账单资料。
+写一份自己的部署前核对清单：Node runtime 22 / 24 / 26 LTS、资料库版本 PG16、Prisma 6.19.x、TLS 连线、秘密设定、migration、Web API base/proxy、健康检查和回滚策略。用本机假值执行 build，并在测试资料库套 migration。**本机生产发布演练**：配套包已提供 `60天配套/docker-compose.prod.yml`（API、Web、PG、Redis、一次性 migrate job、健康检查与 `depends_on: service_completed_successfully`）。先执行 `docker compose -f 60天配套/docker-compose.prod.yml config --quiet` 静态核对，把 `depends_on` 顺序、`HOST=0.0.0.0`、live/ready 探针和具名卷写进记录；镜像名按第 41 天实际构建的标签替换。若本机已有 Dockerfile 与全部镜像，再按文件注释起容器，观察迁移先完成、API 的 `/api/health/ready` 转绿再导流，分别停掉 PG 和 Redis 确认探针只停止导流、数据仍在、worker 不被误判为不健康，最后 `docker compose down` 清理。没有镜像时**只做静态核对即可**，不要把「config 通过」写成「演练已跑通」。不要建立云端资源、不要输入账单资料。
 
 ## 参考答案与验收
 
-清单必须分清本机与云端：本机使用 loopback、假密码与 Vite proxy；云端使用平台注入的秘密、TLS PostgreSQL / Redis、正式网域与白名单。API、Web build 成功，migration 在测试资料库可套用；`.env` 不应出现在 `git status`。本机生产演练要有可观察证据：迁移 job 先于 API 就绪、停 PG 时 readiness 转红而 liveness 保持、停 Redis 时任务与通知已落库且恢复后补发、`docker compose down` 后无残留容器。确认部署次序是资料库迁移再切换应用，并说明失败时如何回到前一版。云端部分只做纸面规划，没有真实部署结果。
+清单必须分清本机与云端：本机使用 loopback、假密码与 Vite proxy；云端使用平台注入的秘密、TLS PostgreSQL / Redis、正式网域与白名单。API、Web build 成功，migration 在测试资料库可套用；`.env` 不应出现在 `git status`。本机生产演练的最低证据是 `docker compose config --quiet` 通过，并能指出 migrate job 的 `restart: "no"`、`api.depends_on` 里的 `service_completed_successfully`、ready 只查 PG、live 只查进程；若已完成容器演练，再补迁移先于 API 就绪、停 PG 时 readiness 转红而 liveness 保持、停 Redis 时任务与通知已落库且恢复后补发、`docker compose down` 后无残留容器。健康端点沿用第 45 天 `HealthController`，路径按第 47 天的全局前缀改为 `/api/health/live` 与 `/api/health/ready`。确认部署次序是资料库迁移再切换应用，并说明失败时如何回到前一版。云端部分只做纸面规划，没有真实部署结果。
 
 ## 原版对照阅读
 
 原版 Day55 用生产 Compose 完整走了一遍发布，本讲义只做纸面准备。补四点，把"发布"从动作变成可验证的工程步骤：
 
-- **构建时变量与运行时变量的区别**：`NEXT_PUBLIC_*` 和构建期需要的值在 `docker build` 时固化进产物；数据库 URL、密钥等必须在运行时以环境变量注入，绝不打进镜像。把运行时变量写成构建参数，会导致同一镜像在不同环境行为不一致。
+- **构建时变量与运行时变量的区别**：本文前端是 React + Vite，构建期变量以 `VITE_` 前缀注入并固化进静态产物；但 `web/src/api.ts` 全程用 `/api` 相对路径，由 Vite 代理或反向代理转发，**本文并不存在构建期 API 地址变量**。`NEXT_PUBLIC_*` 是第 47 天 Next.js 对照实验里的概念，不要套到本文的 Vite 工程。服务端运行时才有 `WEB_ORIGIN`（CORS 白名单）、`DATABASE_URL`、`REDIS_URL`、`JWT_SECRET`；数据库 URL、密钥等必须在运行时以环境变量注入，绝不打进镜像。把运行时变量写成构建参数，会导致同一镜像在不同环境行为不一致。
 - **迁移是发布步骤，不是 Web 启动步骤**：让 Web 容器启动时跑迁移，多实例会并发冲突；应在流水线里作为一次性 job 执行，并且只做兼容变更——"代码可回滚，数据库未必可回滚"，所以加列先于删列分两次发布。
-- **生产 Compose 还原发布**：用 `docker compose -f docker-compose.prod.yml up -d` 在本机模拟一次滚动发布，观察迁移 job 先完成、api 再起来。停掉 Redis/PG 分别观察探针：应只停止导流、保留数据、不误判 worker 健康。
+- **生产 Compose 还原发布**：配套包 `60天配套/docker-compose.prod.yml` 给出了 API、Web、PG、Redis 与一次性 migrate job 的完整编排。先用 `docker compose -f ... config --quiet` 静态核对，再在有镜像时 `up -d` 模拟一次滚动发布，观察迁移 job 先完成、api 再起来。停掉 Redis/PG 分别观察探针：应只停止导流、保留数据、不误判 worker 健康。
 - **健康检查不是首页能打开**：首页 200 只说明静态资源在，不代表数据库可写、后台 worker 活着。readiness 要查关键依赖，liveness 只查进程，两者分开才能既不误杀、也不把流量导到坏实例。
 
 ## AI 搭档
@@ -5242,9 +5400,32 @@ describe('TeamAccess（单元测试）', () => {
 
 ### 3. 完整 HTTP 测试：`api/test/board.e2e-spec.ts`
 
-测试模块只写 `imports: [AppModule]`，沿用真实的认证、授权、业务服务和 Prisma。第 52 天只给了通知 worker 的接入示意，若你没有创建并导入通知模块，这里默认没有额外 worker，不凭空导入一个不存在的模块。
+测试模块只写 `imports: [AppModule]`，沿用真实的认证、授权、业务服务和 Prisma。第 52 天明确给出了 `NotificationsModule` 并要求在 `AppModule` 注册；若按课程主线完成，导入 `AppModule` 就会带上这个 worker，`compile()` 会连 Redis 并把 Jest 挂住，必须先把队列与处理器换成假实现。只有确实没有创建并导入通知模块时，才不需要下面的替换，也不该凭空 import 一个不存在的模块。
 
-如果你已经接入 Redis/BullMQ、邮件或独立 worker，它们必须是可替换的 Nest provider：在 `compile()` 前用实际注入 token 的 `overrideProvider(...).useValue(...)` 替换外部队列、worker 启动器、邮件适配器；mock 要实现业务调用的方法，例如返回已完成 Promise 的 `add`、`close`。保留真实数据库事务与 Notification 写入，只替换外部副作用。不能只删除 worker 模块却留下未满足的注入依赖，也不能在模块文件顶层 `new Worker(...)`，否则仅导入文件就可能连接 Redis、消费作业或使 Jest 无法退出。下面代码对应尚未接入这些外部 provider 的课程基线；已经接入者必须按自己的 token 补上替换，不能宣称它验证了真实队列交付。
+已经接入 Redis/BullMQ、邮件或独立 worker 时，它们必须是可替换的 Nest provider：在 `compile()` 前用实际注入 token 的 `overrideProvider(...).useValue(...)` 替换外部队列、worker 启动器、邮件适配器；mock 要实现业务调用的方法，例如返回已完成 Promise 的 `add`、`addBulk`、`close`。保留真实数据库事务与 Notification 写入，只替换外部副作用。不能只删除 worker 模块却留下未满足的注入依赖，也不能在模块文件顶层 `new Worker(...)`，否则仅导入文件就可能连接 Redis、消费作业或使 Jest 无法退出。下面代码对应已接入 `NotificationsModule` 的情况；尚未接入者保持原来的 `Test.createTestingModule({ imports: [AppModule] }).compile()` 即可。
+
+```ts
+// api/test/board.e2e-spec.ts，beforeAll 中替换外部 provider
+import { getQueueToken } from '@nestjs/bullmq';
+import { Test } from '@nestjs/testing';
+import { NotificationsProcessor } from '../src/notifications/notifications.processor';
+
+const fakeQueue = {
+  add: async () => undefined,
+  addBulk: async () => [],
+  close: async () => undefined,
+};
+
+moduleRef = await Test.createTestingModule({ imports: [AppModule] })
+  .overrideProvider(getQueueToken('notifications'))
+  .useValue(fakeQueue)
+  // @Processor 在模块初始化时会启动 Worker 连 Redis，连处理器一起替换
+  .overrideProvider(NotificationsProcessor)
+  .useValue({ process: async () => undefined })
+  .compile();
+```
+
+若 `NotificationsService` 还注入了别的外部适配器，按同样方式逐个 `overrideProvider`；`getQueueToken('notifications')` 必须与 `BullModule.registerQueue({ name: 'notifications' })` 的名字一致。替换后测试验证的是业务规则与权限，不要宣称它验证了真实队列投递。
 
 第 51 天的 Socket.IO Gateway 不需要额外 `listen()`：`app.init()` 会初始化 Gateway，Supertest 使用 `app.getHttpServer()` 发 HTTP 请求，临时端口由工具管理。不启动第二个 HTTP 服务；本测试也不覆盖 Socket 房间授权或事件送达。必须重设第 47 天的全局前缀和 `ValidationPipe`，因为测试导入 `AppModule` 不会执行 `main.ts`。
 
@@ -5338,7 +5519,7 @@ describe('看板权限与 CRUD（HTTP + PostgreSQL）', () => {
 
   beforeAll(async () => {
     moduleRef = await Test.createTestingModule({ imports: [AppModule] }).compile();
-    // 若有外部 provider，应在上面 compile() 之前完成 overrideProvider。
+    // 已接入 NotificationsModule 时，按上一节示例在 compile() 前替换队列与处理器。
     db = moduleRef.get(PrismaService);
     if (moduleRef.get(ConfigService).get<string>('DATABASE_URL') !== testDatabaseUrl) {
       throw new Error('Nest 配置与已校验的测试库 URL 不一致');
@@ -5650,12 +5831,12 @@ LIMIT 20 OFFSET 0;
 ```text
 浏览器 React
   | HTTPS / REST + WebSocket 提示
-Web/API Nest 11（多实例）
+Web/API Nest 11（当前单实例；多实例前须先接 Redis adapter）
   | Prisma 6.19.x       | BullMQ
 PostgreSQL 16（事实数据） Redis（队列与短期状态）
 ```
 
-写一条请求路径：小周移动任务时，API 验证 JWT 得到 `sub`，TeamGuard 查询 Membership，事务更新 Task 并写 Notification，提交后投递 job；网关通知已加入房间的成员；页面收到事件后重新 GET 列表。任一步重试都不应让任务移动两次，服务可用时查询结果必须以 PG 为准。
+图里的「多实例」是目标态不是当前实现：第 51 天说明过多实例必须接 `@socket.io/redis-adapter` 才能跨实例广播房间事件，本文没有给出 adapter 代码，因此当前按单实例理解，扩容前要先补 adapter 与共享 Redis 连接。写一条请求路径：小周移动任务时，API 验证 JWT 得到 `sub`，TeamGuard 查询 Membership，事务更新 Task 并写 Notification，提交后投递 job；网关通知已加入房间的成员；页面收到事件后重新 GET 列表。任一步重试都不应让任务移动两次，服务可用时查询结果必须以 PG 为准。
 
 接着写容量假设：1,000 个团队、每队 50 人、每项目 100,000 任务、峰值 100 次列表请求/秒。用它讨论索引、连接池、读副本、队列积压和分页策略，而不是只说「上 Kubernetes」。长列表可改用游标分页，接口响应带 `nextCursor`；迁移期间保持旧的 `offset` 接口，待前端切换后再下线。通知以 Outbox 表和唯一事件键确保数据库提交与后续投递之间可恢复；若 Redis 中断，补偿扫描器重新排队。
 
@@ -5720,7 +5901,7 @@ PostgreSQL 16（事实数据） Redis（队列与短期状态）
 在现有 README 写「最终验收记录」，保留日期、Node 版本、依赖版本、本机数据库名称（不要写密码）、命令和结果。按下面顺序在独立测试库重跑；每一步记录 HTTP 状态和可观察输出：
 
 ```text
-1. prisma migrate deploy + seed：成功
+1. prisma migrate deploy + seed（配套包 `60天配套/board-api/prisma/seed.mjs`）：成功，团队/项目/任务演示数据就绪；账号仍用注册接口创建
 2. 假账号登录：200，得到短期 accessToken
 3. 甲队所有者创建项目和任务：201，任务为 todo
 4. 甲队成员列表读取并移动任务：200，状态为 doing

@@ -5,11 +5,14 @@
 - 60 天日号连续、无缺号/重号
 - 代码围栏成对且都有语言标注
 - 每天都有指向原课的 day-XX 链接且编号匹配
-- 繁体字扫描（正文与离线 HTML）
+- 繁体字扫描（正文、离线 HTML 与 zip 内源码快照）
 - 过时版本号表述
 - Markdown / HTML / zip 三份正文一致
+- HTML 中的 inline 占位符 / 字面加粗标记不得回归
+- zip 内源码相对 import 完整性
 """
 import os
+import posixpath
 import re
 import sys
 import zipfile
@@ -113,6 +116,37 @@ def main():
           "found=%d" % html.count('<article class="day"'))
     check("html 60 answer details", html.count("<details") == 60,
           "found=%d" % html.count("<details"))
+
+    # 8) 历史渲染缺陷不得回归
+    check("no inline placeholders in html", "\x00" not in html)
+    check("no literal bold markers in html", "**" not in html)
+    prose = re.sub(r"<pre><code.*?</code></pre>", "", html, flags=re.S)
+    check("no literal backticks outside code blocks", "`" not in prose)
+
+    # 9) zip 内源码快照：繁体字与相对 import
+    src_names = [n for n in names if n.startswith("60天配套/")
+                and n.endswith((".ts", ".tsx", ".md", ".mjs", ".yml", ".yaml", ".json"))]
+    zip_trad = []
+    for n in src_names:
+        text = z.read(n).decode("utf-8")
+        found = sorted({ch for ch in text if ch in trad})
+        if found:
+            zip_trad.append((n, "".join(found[:12])))
+    check("no traditional chars (zip sources)", not zip_trad, str(zip_trad[:5]))
+
+    roots = ("60天配套/blog-api/", "60天配套/board-api/", "60天配套/day54-web/")
+    unresolved = []
+    for n in names:
+        if not n.endswith((".ts", ".tsx")) or not n.startswith(roots):
+            continue
+        src = z.read(n).decode("utf-8")
+        for m in re.finditer(r"(?:from|import)\s*\(?\s*['\"](\.[^'\"]+)['\"]", src):
+            base = posixpath.normpath(posixpath.join(posixpath.dirname(n), m.group(1)))
+            candidates = [base + ext for ext in (".ts", ".tsx", ".js", ".mjs", ".json", ".css", "")]
+            candidates += [posixpath.join(base, "index" + ext) for ext in (".ts", ".tsx")]
+            if not any(c in names for c in candidates):
+                unresolved.append(n + " -> " + m.group(1))
+    check("snapshot relative imports resolve", not unresolved, str(unresolved[:5]))
 
     print("\n%d checks failed" % len(failures))
     for f in failures:

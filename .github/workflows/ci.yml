@@ -36,3 +36,14 @@ jobs:
       - name: 类型检查与生产构建
         working-directory: bundle/60天配套/day54-web
         run: npm run build
+
+  check-snapshots:
+    name: 源码快照静态检查
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 检查 blog-api / board-api / day54-web 快照
+        run: python scripts/check_snapshots.py
