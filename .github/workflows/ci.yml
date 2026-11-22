@@ -1,0 +1,38 @@
+name: 教程校验与编译
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  verify:
+    name: 一致性校验
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: 运行校验脚本
+        run: python scripts/verify.py
+
+  build-web:
+    name: 编译第54天前端
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: 解压学习包
+        run: |
+          python3 -c "import zipfile; zipfile.ZipFile('Node.js_AI全栈60天学习包.zip').extractall('bundle')"
+      - name: 安装依赖
+        working-directory: bundle/60天配套/day54-web
+        run: npm ci
+      - name: 类型检查与生产构建
+        working-directory: bundle/60天配套/day54-web
+        run: npm run build
