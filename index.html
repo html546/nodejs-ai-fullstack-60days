@@ -1,8 +1,178 @@
 <!doctype html>
 <html lang="zh-CN"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Node.js 60 天：AI 协作全栈</title>
 <style>
-:root{--ink:#1d302d;--muted:#60716e;--accent:#166a54;--line:#d9e2dc;--ground:#f3f5f1;--paper:#fff;--soft:#e9f1e9}*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:20px}body{margin:0;color:var(--ink);background:var(--ground);font:16px/1.85 'Microsoft YaHei','PingFang SC',system-ui,sans-serif}a{color:var(--accent);text-underline-offset:3px}.sidebar{position:fixed;inset:0 auto 0 0;width:304px;padding:24px 20px;background:#fafbf8;border-right:1px solid var(--line);overflow:auto}.brand{font-size:12px;font-weight:700;color:var(--accent)}.sidebar h1{font-size:22px;line-height:1.5;margin:8px 0 14px}.search{width:100%;padding:9px 10px;border:1px solid #b8c8c0;background:white;border-radius:5px}.progress{font-size:12px;color:var(--muted)}nav{margin:18px 0}nav a{display:block;padding:6px 8px;margin:2px 0;font-size:12px;line-height:1.5;text-decoration:none;color:#435753;border-radius:4px}nav a.active,nav a:hover{background:var(--soft);color:#104d3c}nav a.checked:before{content:'✓ ';color:var(--accent)}.hidden{display:none!important}.small{font-size:12px;color:var(--muted)}main{margin-left:304px;max-width:1260px;padding:38px 56px 80px}.hero{padding:0 0 20px;margin:0 0 22px;border-bottom:1px solid var(--line)}.hero h2{font-size:28px;margin:0 0 8px}.day{background:var(--paper);border:1px solid var(--line);border-radius:5px;padding:36px 42px;margin:0 0 22px;overflow-wrap:anywhere}.day>header{font-size:25px;font-weight:700;line-height:1.5;color:#173f32;margin-bottom:20px}.day h2{font-size:19px;line-height:1.5;margin:28px 0 9px}.day p{margin:10px 0}.day li{margin:6px 0}blockquote{padding:3px 16px;margin:16px 0;border-left:3px solid #84a877;background:#f6f9f4;color:#41584e}pre{position:relative;background:#172b2b;color:#edf5ef;border-radius:5px;padding:20px 16px;overflow:auto;font:13px/1.7 Consolas,'Microsoft YaHei',monospace}code{background:#edf2ed;border-radius:3px;padding:2px 4px;font: .9em/1.6 Consolas,'Microsoft YaHei',monospace}pre code{background:transparent;padding:0;color:inherit;font:inherit}.copy{float:right;position:sticky;right:0;top:0;z-index:1;padding:3px 8px;border:1px solid #687e76;border-radius:4px;background:#2c4940;color:white;font-size:11px;cursor:pointer;margin-left:10px}table{display:block;max-width:100%;overflow:auto;border-collapse:collapse;font-size:13px;margin:16px 0}th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;min-width:95px}th{background:#eaf1e7}.answer{margin-top:18px;padding:11px 16px;border:1px solid #bbcebd;border-radius:5px;background:#fafcf8}.answer summary{cursor:pointer;color:var(--accent);font-size:14px;font-weight:700}.done{display:flex;justify-content:space-between;align-items:center;gap:15px;border-top:1px solid var(--line);padding-top:15px;margin-top:27px;font-size:12px;color:var(--muted)}input[type=checkbox]{accent-color:var(--accent)}.no-results{font-size:12px;color:#81533e}button:focus-visible,a:focus-visible,input:focus-visible,summary:focus-visible{outline:3px solid #aac078;outline-offset:3px}@media(max-width:1050px){.sidebar{width:260px}main{margin-left:260px;padding:26px}.day{padding:28px}}@media(max-width:700px){.sidebar{position:relative;width:auto;max-height:none;border:0;border-bottom:1px solid var(--line);padding:18px}.sidebar nav{max-height:210px;overflow:auto}main{margin:0;padding:14px 10px}.day{padding:23px 18px}.day>header{font-size:22px}.hero h2{font-size:24px}.done{align-items:flex-start;flex-direction:column}}@media print{.sidebar,.done,.copy{display:none}main{margin:0;padding:0;max-width:none}.day{break-before:page;border:0;padding:0;background:white}body{background:white;font-size:10.5pt}pre{white-space:pre-wrap;background:#f0f1ed;color:#111;font-size:8.5pt}.answer{display:block}a{color:inherit}}
-.nav-phase{font-size:11px;font-weight:700;letter-spacing:.04em;color:var(--accent);margin:16px 8px 4px;padding-top:10px;border-top:1px solid var(--line)}.nav-phase:first-child{margin-top:4px;padding-top:0;border-top:0}.phase-banner{margin:0 0 24px;padding:18px 22px;background:var(--soft);border-left:4px solid var(--accent);border-radius:4px}.phase-banner h2{margin:0 0 6px;font-size:20px;color:#104d3c}.phase-banner p{margin:4px 0;font-size:14px;line-height:1.7;color:#41584e}</style></head><body id="top"><aside class="sidebar"><div class="brand">60 DAYS · NODE / AI × FULL STACK</div><h1>从 JavaScript 到全栈交付</h1><label class="small" for="search">搜索课程标题</label><input id="search" class="search" type="search" placeholder="例如：数据库、JWT、React" aria-label="搜索课程标题"><p class="progress" id="progress">已验收 0 / 60 天 · 自动保存</p><nav aria-label="60天课程目录"><a href="#start">开始阅读与学习方法</a>
+:root {
+  --ink: #1d302c;
+  --muted: #687a73;
+  --accent: #14745c;
+  --accent-2: #0d5443;
+  --line: #dfe8e1;
+  --ground: #f4f7f3;
+  --paper: #ffffff;
+  --soft: #e9f3ea;
+  --sidebar: #fafcf9;
+  --code-bg: #112723;
+  --code-ink: #e7f2e9;
+  --shadow: 0 1px 2px rgba(16, 48, 38, .04), 0 10px 28px rgba(16, 48, 38, .05);
+  --p1: #2f8f7a;
+  --p2: #3d7cbb;
+  --p3: #8a6bbd;
+  --p4: #bd8735;
+  --p5: #c2687f;
+  --p6: #6f8d4b;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; scroll-padding-top: 24px; }
+body {
+  margin: 0;
+  color: var(--ink);
+  background: var(--ground);
+  font: 16px/1.85 "Microsoft YaHei", "PingFang SC", system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--accent); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+a:hover { color: var(--accent-2); }
+
+/* 顶部阅读进度 */
+.read-progress { position: fixed; top: 0; left: 296px; right: 0; height: 3px; z-index: 60; background: transparent; }
+.read-progress i { display: block; height: 100%; width: 0; background: linear-gradient(90deg, #14745c, #79c39a); transition: width .08s linear; }
+
+/* 侧边栏 */
+.sidebar { position: fixed; inset: 0 auto 0 0; width: 296px; padding: 24px 18px 32px; background: var(--sidebar); border-right: 1px solid var(--line); overflow-y: auto; }
+.sidebar::-webkit-scrollbar { width: 6px; }
+.sidebar::-webkit-scrollbar-thumb { background: #d3ded5; border-radius: 3px; }
+.brand { font-size: 10px; font-weight: 800; letter-spacing: .16em; color: var(--accent); }
+.sidebar h1 { font-size: 21px; line-height: 1.45; margin: 8px 0 16px; color: #183b31; }
+label.small { display: block; margin-bottom: 6px; }
+.search { width: 100%; padding: 9px 11px; border: 1px solid #cdd9cf; border-radius: 8px; background: #fff; color: var(--ink); font-size: 13px; outline: none; transition: border-color .15s, box-shadow .15s; }
+.search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(20, 116, 92, .12); }
+.progress { font-size: 12px; color: var(--muted); margin: 12px 0 6px; }
+.progress-track { height: 4px; background: #e4ece4; border-radius: 99px; overflow: hidden; }
+.progress-track i { display: block; height: 100%; width: 0; background: var(--p1); border-radius: 99px; transition: width .2s; }
+nav { margin: 18px 0 14px; }
+.nav-phase { display: flex; align-items: center; gap: 8px; font-size: 11px; font-weight: 800; letter-spacing: .03em; color: var(--pc, var(--accent)); margin: 18px 8px 5px; padding-top: 12px; border-top: 1px solid var(--line); }
+.nav-phase:first-child { margin-top: 4px; padding-top: 0; border-top: 0; }
+.nav-phase:before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--pc, var(--accent)); box-shadow: 0 0 0 3px rgba(20, 116, 92, .09); }
+nav a { display: block; padding: 6px 9px; margin: 1px 0; font-size: 12px; line-height: 1.5; text-decoration: none; color: #4a5c56; border-radius: 5px; border-left: 2px solid transparent; transition: background .12s, color .12s; }
+nav a:hover { background: #eef5ee; color: var(--accent-2); }
+nav a.active { background: var(--soft); border-left-color: var(--pc, var(--accent)); color: var(--accent-2); font-weight: 700; }
+nav a.checked:before { content: "\2713 "; color: var(--accent); }
+.hidden { display: none !important; }
+.small { font-size: 12px; color: var(--muted); line-height: 1.6; }
+.no-results { font-size: 12px; color: #9a5a3c; }
+
+/* 主区 */
+main { margin-left: 296px; max-width: 980px; padding: 44px 56px 96px; }
+.hero { padding: 0 0 24px; margin: 0 0 26px; border-bottom: 1px solid var(--line); }
+.hero h2 { font-size: 31px; line-height: 1.35; letter-spacing: -.02em; color: #143a30; margin: 0 0 12px; }
+.hero p { margin: 8px 0; color: #3f544e; }
+.hero .small { display: inline-block; padding: 5px 11px; background: #eef4ee; border: 1px solid #dbe7dc; border-radius: 99px; font-size: 11.5px; }
+.hero p:last-child { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 18px; font-size: 0; }
+.hero p:last-child a { display: inline-flex; align-items: center; padding: 7px 14px; border: 1px solid var(--line); border-radius: 7px; background: #fff; text-decoration: none; font-size: 13px; font-weight: 700; transition: transform .15s; }
+.hero p:last-child a:first-child { background: var(--accent); border-color: var(--accent); color: #fff; }
+.hero p:last-child a:hover { transform: translateY(-1px); }
+
+/* 阶段横幅 */
+.phase-banner { position: relative; margin: 6px 0 24px; padding: 20px 24px 18px 26px; background: linear-gradient(135deg, #f1f8f3, #fff 65%); border: 1px solid var(--line); border-left: 4px solid var(--pc); border-radius: 10px; box-shadow: var(--shadow); overflow: hidden; }
+.phase-banner:after { content: attr(data-phase-label); position: absolute; right: 20px; top: 16px; font-size: 10px; font-weight: 800; letter-spacing: .18em; color: var(--pc); opacity: .55; }
+.phase-banner h2 { margin: 0 0 6px; font-size: 19px; color: var(--accent-2); }
+.phase-banner p { margin: 4px 0 0; font-size: 14px; line-height: 1.75; color: #4a5f57; max-width: 82%; }
+
+/* 每日卡片 */
+.day { position: relative; background: var(--paper); border: 1px solid var(--line); border-radius: 11px; padding: 32px 40px 30px; margin: 0 0 20px; box-shadow: var(--shadow); overflow-wrap: anywhere; }
+.day:before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--pc, var(--accent)); border-radius: 11px 11px 0 0; opacity: .85; }
+/* 开篇卡片：页头已有主标题，去掉重复的 h1/header */
+#start > header, #start > h1 { display: none; }
+.day[id^="day-"] > h1 { display: none; }
+.day > header { display: flex; align-items: baseline; gap: 12px; font-size: 22px; font-weight: 800; line-height: 1.45; color: #173f33; margin: 0 0 20px; padding-bottom: 14px; border-bottom: 1px dashed var(--line); }
+.day-no { flex: none; font-size: 10.5px; font-weight: 800; letter-spacing: .08em; color: #fff; background: var(--pc, var(--accent)); padding: 5px 8px; border-radius: 5px; line-height: 1.1; }
+.day h2 { position: relative; font-size: 18px; line-height: 1.5; margin: 28px 0 10px; padding-left: 12px; color: #1b4739; }
+.day h2:before { content: ""; position: absolute; left: 0; top: 5px; bottom: 5px; width: 3px; border-radius: 3px; background: var(--pc, var(--accent)); opacity: .65; }
+.day h2.h2-lecture { display: inline-block; padding: 5px 12px; margin: 24px 0 8px; background: #edf5fb; border: 1px solid #d5e5f1; border-radius: 6px; color: #2a5d85; font-size: 15.5px; }
+.day h2.h2-lecture:before { display: none; }
+.day h3 { font-size: 16px; margin: 22px 0 8px; color: #265446; }
+.day p { margin: 10px 0; }
+.day li { margin: 6px 0; }
+.day ul, .day ol { padding-left: 24px; }
+blockquote { padding: 10px 16px; margin: 16px 0; border-left: 3px solid #84a877; background: #f6faf5; border-radius: 0 6px 6px 0; color: #456052; }
+
+/* 代码 */
+pre { position: relative; background: var(--code-bg); color: var(--code-ink); border: 1px solid #21433b; border-radius: 9px; padding: 38px 18px 16px; overflow: auto; font: 13px/1.75 "JetBrains Mono", Consolas, "Microsoft YaHei", monospace; box-shadow: 0 4px 14px rgba(10, 40, 32, .09); }
+pre:before { content: attr(data-lang); position: absolute; left: 16px; top: 9px; font-size: 10.5px; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: #8fbbaa; }
+code { background: #edf3ed; color: #235c4a; border: 1px solid #dfeadf; border-radius: 4px; padding: 1px 5px; font: .9em/1.6 Consolas, "Microsoft YaHei", monospace; }
+pre code { background: transparent; border: 0; padding: 0; color: inherit; font: inherit; }
+.copy { position: absolute; right: 10px; top: 8px; z-index: 1; padding: 4px 9px; border: 1px solid #41675c; border-radius: 5px; background: #1e4038; color: #d9ebe0; font-size: 11px; cursor: pointer; }
+.copy:hover { background: #2a564a; color: #fff; }
+
+/* 表格 */
+table { display: block; max-width: 100%; overflow: auto; border-collapse: separate; border-spacing: 0; border: 1px solid var(--line); border-radius: 8px; font-size: 13px; margin: 16px 0; background: #fff; }
+th, td { border: 0; border-bottom: 1px solid var(--line); padding: 9px 12px; text-align: left; min-width: 95px; }
+th { background: #eef4ee; color: #265244; font-weight: 800; white-space: nowrap; }
+tbody tr:nth-child(even) { background: #fafcf9; }
+tr:last-child td { border-bottom: 0; }
+
+/* 答案与完成标记 */
+.answer { margin-top: 20px; border: 1px solid #d8e6d3; border-radius: 8px; background: #f9fcf7; overflow: hidden; }
+.answer summary { cursor: pointer; padding: 11px 16px; color: #356b4c; font-size: 13.5px; font-weight: 800; list-style: none; display: flex; align-items: center; gap: 9px; }
+.answer summary::-webkit-details-marker { display: none; }
+.answer summary:before { content: "\25B8"; font-size: 14px; transition: transform .18s; }
+.answer[open] summary:before { transform: rotate(90deg); }
+.answer[open] { padding-bottom: 8px; }
+.answer > *:not(summary) { margin-left: 16px; margin-right: 16px; }
+.answer h2 { font-size: 15px; margin: 6px 0; padding: 0; border: 0; color: #356b4c; }
+.answer h2:before { display: none; }
+.done { display: flex; justify-content: space-between; align-items: center; gap: 15px; border-top: 1px dashed var(--line); padding-top: 16px; margin-top: 28px; font-size: 12px; color: var(--muted); }
+.done label { cursor: pointer; user-select: none; }
+input[type=checkbox] { accent-color: var(--accent); width: 15px; height: 15px; }
+
+/* 悬浮返回顶部 */
+.to-top { position: fixed; right: 26px; bottom: 26px; width: 42px; height: 42px; border-radius: 50%; border: 1px solid var(--line); background: #fff; color: var(--accent); box-shadow: 0 6px 22px rgba(16, 48, 38, .14); cursor: pointer; font-size: 18px; z-index: 30; opacity: 0; pointer-events: none; transform: translateY(6px); transition: .2s; }
+.to-top.show { opacity: 1; pointer-events: auto; transform: none; }
+
+button:focus-visible, a:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid #9dc9ad; outline-offset: 3px; }
+
+/* 六阶段配色 */
+[data-phase="1"] { --pc: var(--p1); }
+[data-phase="2"] { --pc: var(--p2); }
+[data-phase="3"] { --pc: var(--p3); }
+[data-phase="4"] { --pc: var(--p4); }
+[data-phase="5"] { --pc: var(--p5); }
+[data-phase="6"] { --pc: var(--p6); }
+
+@media (max-width: 1180px) { main { max-width: none; } }
+@media (max-width: 1050px) {
+  .sidebar { width: 260px; }
+  main { margin-left: 260px; padding: 28px 30px; }
+  .read-progress { left: 260px; }
+  .day { padding: 28px 26px; }
+}
+@media (max-width: 700px) {
+  .sidebar { position: relative; inset: auto; width: auto; max-height: none; padding: 16px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .sidebar nav { max-height: 210px; overflow: auto; }
+  main { margin: 0; padding: 18px 12px 64px; }
+  .read-progress { left: 0; }
+  .day { padding: 24px 18px; }
+  .day > header { font-size: 19px; }
+  .hero h2 { font-size: 24px; }
+  .phase-banner { padding: 16px; }
+  .phase-banner p { max-width: none; }
+  .phase-banner:after { display: none; }
+  .done { align-items: flex-start; flex-direction: column; }
+  .to-top { right: 14px; bottom: 14px; }
+}
+@media print {
+  .sidebar, .done, .copy, .to-top, .read-progress { display: none !important; }
+  main { margin: 0; padding: 0; max-width: none; }
+  .day { break-before: page; border: 0; padding: 0; background: #fff; box-shadow: none; }
+  .day:before { display: none; }
+  body { background: #fff; font-size: 10.5pt; }
+  pre { white-space: pre-wrap; background: #f0f1ed; color: #111; font-size: 8.5pt; box-shadow: none; }
+  pre:before { display: none; }
+  .answer { display: block; }
+  a { color: inherit; }
+}
+</style></head><body id="top"><aside class="sidebar"><div class="brand">60 DAYS · NODE / AI × FULL STACK</div><h1>从 JavaScript 到全栈交付</h1><label class="small" for="search">搜索课程标题</label><input id="search" class="search" type="search" placeholder="例如：数据库、JWT、React" aria-label="搜索课程标题"><p class="progress" id="progress">已验收 0 / 60 天 · 自动保存</p><nav aria-label="60天课程目录"><a href="#start">开始阅读与学习方法</a>
 <p class="nav-phase" data-phase="1">Node.js 核心基础 · Day 01–15</p>
 <a href="#day-01" data-link="day-01">第 01 天：安装 Node.js，运行第一份任务清单</a>
 <a href="#day-02" data-link="day-02">第 02 天：拆分 ES 模块，用 npm 保存运行命令</a>
@@ -68,7 +238,7 @@
 <a href="#day-57" data-link="day-57">第 57 天：用数据定位看板性能瓶颈</a>
 <a href="#day-58" data-link="day-58">第 58 天：把协作任务板画成可扩展的系统</a>
 <a href="#day-59" data-link="day-59">第 59 天：把项目整理成作品、简历和面试答案</a>
-<a href="#day-60" data-link="day-60">第 60 天：验收、复盘并规划下一段学习</a></nav><p class="no-results hidden" id="no-results">没有匹配的课程标题。</p><p class="small">每天一项学习单元<br>先运行、再解释、最后用 AI 复盘</p></aside><main><header class="hero"><h2>Node.js 60 天：从零基础到 AI 协作全栈</h2><p>围绕 Node 原生 API、NestJS 博客、团队任务板完整铺开。每一天都有原课链接、学习目标、跟做、练习答案和 AI 搭档提示。</p><p class="small">版本约定：Node 22/24 · Nest 11 · PostgreSQL 16 · Prisma 6 · React + Vite · AI 提示使用脱敏数据</p><p><a href="./Node.js_AI全栈60天教程.md">打开 Markdown 原稿</a> · <a href="./Node.js_AI全栈60天学习包.zip" download>下载离线学习包</a></p></header><article class="day" id="start"><h1>Node.js 60 天：从零基础到 AI 协作全栈</h1>
+<a href="#day-60" data-link="day-60">第 60 天：验收、复盘并规划下一段学习</a></nav><p class="no-results hidden" id="no-results">没有匹配的课程标题。</p><p class="small">每天一项学习单元<br>先运行、再解释、最后用 AI 复盘</p></aside><main><header class="hero"><h2>Node.js 60 天：从零基础到 AI 协作全栈</h2><p>围绕 Node 原生 API、NestJS 博客、团队任务板完整铺开。每一天都有原课链接、学习目标、跟做、练习答案和 AI 搭档提示。</p><p class="small">版本约定：Node 22/24/26 · Nest 11 · PostgreSQL 16 · Prisma 6 · React + Vite · AI 提示使用脱敏数据</p><p><a href="./Node.js_AI全栈60天教程.md">打开 Markdown 原稿</a> · <a href="./Node.js_AI全栈60天学习包.zip" download>下载离线学习包</a></p></header><article class="day" id="start"><h1>Node.js 60 天：从零基础到 AI 协作全栈</h1>
 <p>基于 <a href="https://xiguadev.com/node-60days">原版 Node.js 60 天课程</a> 的日序与公开主题，重新编写讲解、练习和项目。原来只放在附录里的 NestJS、PostgreSQL、Prisma、认证、Redis、队列、Docker、部署与 SaaS 综合项目，在这一版都进入正文。每天在原课链接之后附一段<strong>原课知识精讲</strong>：提炼原版当天核心知识点，按本文技术栈重写，并写明「原版用 X、本文用 Y」的差异，便于带着知识脉络对照原课；正文按原版六阶段组织，每阶段前有导读。覆盖原课程的 <strong>60 个日主题</strong>，并补充 Next.js、tRPC 与 React Query 对照实验；主项目沿用 Nest REST，再配 React 页面，原课各技术的实现细节与深入程度并非逐段等量复刻。</p>
 <p><strong>本版文件与验证范围：</strong>离线页与 Markdown 是完整的 60 天讲义；<code>60天配套/基础实验</code> 提供第 01—05 天独立实验，<code>60天配套/day54-web</code> 提供已构建验证的首屏前端，<code>60天配套/blog-api</code> 与 <code>60天配套/board-api</code> 提供第 16–53 天完整代码块的源码快照（不含脚手架与迁移历史，按正文补齐后才能运行）；<code>60天配套/docker-compose.prod.yml</code> 供第 55 天本机发布演练静态核对。其余片段按正文标注放进对应工程，不是已经打包完成的整套 SaaS 仓库。本机已运行基础实验、执行前端类型检查与构建，并检查 60 天目录和链接；PostgreSQL、Redis、Docker、OIDC、CI 和云端部署没有全部实测，不将预期结果当作通过记录。</p>
 <h2>从这里开始</h2>
@@ -228,8 +398,8 @@ AI 建议：
 <li><a href="https://react.dev/learn">React 基础</a> · <a href="https://vite.dev/guide/">Vite 指南</a> · <a href="https://docs.docker.com/">Docker 文档</a></li>
 <li>若前几天还不熟悉变量、数组、函数和终端，优先用上面「参考与补课」里的 MDN JavaScript 指南和 Node.js 官方教程按主题补课；本包不含另一套旧版编号，不要去找 <code>lesson-XX</code> 之类的目录。</li>
 </ul>
-</article><article class="day" id="day-01" data-title="第 01 天：安装 Node.js，运行第一份任务清单"><header>第 01 天：安装 Node.js，运行第一份任务清单</header><h1>第 01 天：安装 Node.js，运行第一份任务清单</h1>
-<section class="phase-banner" id="phase-1"><h2>阶段一 · Node.js 核心基础（Day 01–15）</h2><p>从零搭起 Node.js 运行时认知：模块与 npm、fs/path/os、事件与流、事件循环与异步、原生 HTTP 与手写 REST，最后用 TypeScript 和调试能力收束。本阶段的过关产物是一套在本机跑通、能解释、能在错误栈里定位自己代码的<strong>原生任务 API</strong>。</p></section>
+</article><section class="phase-banner" id="phase-1"><h2>阶段一 · Node.js 核心基础（Day 01–15）</h2><p>从零搭起 Node.js 运行时认知：模块与 npm、fs/path/os、事件与流、事件循环与异步、原生 HTTP 与手写 REST，最后用 TypeScript 和调试能力收束。本阶段的过关产物是一套在本机跑通、能解释、能在错误栈里定位自己代码的<strong>原生任务 API</strong>。</p></section>
+<article class="day" id="day-01" data-title="第 01 天：安装 Node.js，运行第一份任务清单"><header>第 01 天：安装 Node.js，运行第一份任务清单</header>
 
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-01">https://xiguadev.com/node-60days/day-01</a></p>
@@ -278,7 +448,7 @@ console.log(`已完成 ${doneCount} / ${tasks.length}`)
 <h2>AI 搭档</h2>
 <p>提示词「用 <code>t1</code>、<code>t2</code> 两条虚构任务，逐轮解释 <code>for...of</code> 如何改变 <code>doneCount</code>。给我一道改状态后预测输出的题，等我回答后再公布答案。」只粘贴虚构任务和脱敏报错，最后自己运行命令核对。</p>
 <div class="done"><label><input type="checkbox" data-day="day-01">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-02" data-title="第 02 天：拆分 ES 模块，用 npm 保存运行命令"><header>第 02 天：拆分 ES 模块，用 npm 保存运行命令</header><h1>第 02 天：拆分 ES 模块，用 npm 保存运行命令</h1>
+<article class="day" id="day-02" data-title="第 02 天：拆分 ES 模块，用 npm 保存运行命令"><header>第 02 天：拆分 ES 模块，用 npm 保存运行命令</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-02">https://xiguadev.com/node-60days/day-02</a></p>
 <h2>原课知识精讲</h2>
@@ -333,7 +503,7 @@ npm ls picocolors
 <h2>AI 搭档</h2>
 <p>提示词「我有一个具名导出的 <code>countByStatus</code>。基于这两条虚构任务，出一道导入路径排错题，再提供一个可手算的计数用例。」只分享示例模块和脱敏路径，分别跑 <code>npm run day02</code> 和 <code>npm ls picocolors</code> 验收。</p>
 <div class="done"><label><input type="checkbox" data-day="day-02">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-03" data-title="第 03 天：用 fs、path 和 os 保存任务"><header>第 03 天：用 fs、path 和 os 保存任务</header><h1>第 03 天：用 fs、path 和 os 保存任务</h1>
+<article class="day" id="day-03" data-title="第 03 天：用 fs、path 和 os 保存任务"><header>第 03 天：用 fs、path 和 os 保存任务</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-03">https://xiguadev.com/node-60days/day-03</a></p>
 <h2>原课知识精讲</h2>
@@ -393,7 +563,7 @@ try {
 <h2>AI 搭档</h2>
 <p>提示词「区分两种错误：JSON 有尾逗号，以及 JSON 合法但顶层是对象。根据我给出的最小虚构样例，分别指出程序会在哪一步失败。」只传模拟文件和脱敏路径，亲自运行两个输入验证。</p>
 <div class="done"><label><input type="checkbox" data-day="day-03">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-04" data-title="第 04 天：理解事件、流和 Buffer"><header>第 04 天：理解事件、流和 Buffer</header><h1>第 04 天：理解事件、流和 Buffer</h1>
+<article class="day" id="day-04" data-title="第 04 天：理解事件、流和 Buffer"><header>第 04 天：理解事件、流和 Buffer</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-04">https://xiguadev.com/node-60days/day-04</a></p>
 <h2>原课知识精讲</h2>
@@ -451,7 +621,7 @@ cmp data/tasks.json data/tasks.backup.json
 <h2>AI 搭档</h2>
 <p>提示词「用虚构任务标题解释一个 UTF-8 汉字被拆到两个读取块会发生什么。再给我一条判断备份失败时事件是否正确的检查。」只提交虚构标题和脱敏错误，自己运行成功与失败两个分支。</p>
 <div class="done"><label><input type="checkbox" data-day="day-04">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-05" data-title="第 05 天：看懂事件循环的输出顺序"><header>第 05 天：看懂事件循环的输出顺序</header><h1>第 05 天：看懂事件循环的输出顺序</h1>
+<article class="day" id="day-05" data-title="第 05 天：看懂事件循环的输出顺序"><header>第 05 天：看懂事件循环的输出顺序</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-05">https://xiguadev.com/node-60days/day-05</a></p>
 <h2>原课知识精讲</h2>
@@ -493,7 +663,7 @@ console.log(&#39;3 同步结束&#39;)
 <h2>AI 搭档</h2>
 <p>提示词「只用这份任务板启动日志，让我分别圈出同步调用、微任务和定时器，给一个交换两行登记语句的预测题。」只提供虚构日志和例子，先记下自己的预测，再通过 <code>node day05.mjs</code> 核验。</p>
 <div class="done"><label><input type="checkbox" data-day="day-05">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-06" data-title="第 06 天：用 Promise 和 async/await 读写任务"><header>第 06 天：用 Promise 和 async/await 读写任务</header><h1>第 06 天：用 Promise 和 async/await 读写任务</h1>
+<article class="day" id="day-06" data-title="第 06 天：用 Promise 和 async/await 读写任务"><header>第 06 天：用 Promise 和 async/await 读写任务</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-06">https://xiguadev.com/node-60days/day-06</a></p>
 <h2>原课知识精讲</h2>
@@ -546,7 +716,7 @@ main()
 <h2>AI 搭档</h2>
 <p>提示词「只用两条虚构任务，逐行说明 <code>await writeFile</code> 为什么必须在 <code>await readFile</code> 前完成。给我一道模拟拒绝的题，不要替我改文件。」只提供脱敏代码和报错；自己执行 <code>node day06.mjs</code>，检查内容和退出码。</p>
 <div class="done"><label><input type="checkbox" data-day="day-06">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-07" data-title="第 07 天：用原生 HTTP 返回任务"><header>第 07 天：用原生 HTTP 返回任务</header><h1>第 07 天：用原生 HTTP 返回任务</h1>
+<article class="day" id="day-07" data-title="第 07 天：用原生 HTTP 返回任务"><header>第 07 天：用原生 HTTP 返回任务</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-07">https://xiguadev.com/node-60days/day-07</a></p>
 <h2>原课知识精讲</h2>
@@ -605,7 +775,7 @@ curl -i http://127.0.0.1:3000/unknown
 <h2>AI 搭档</h2>
 <p>提示词「对照这段原生 HTTP 服务器，用虚构请求路径出一道判断 200 或 404 的题。提醒我只绑定 <code>127.0.0.1</code>，不要增加外网监听。」只粘贴脱敏请求和响应；自己启动服务器并用 curl 验收。</p>
 <div class="done"><label><input type="checkbox" data-day="day-07">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-08" data-title="第 08 天：实现原生 REST 上半场：列出、新建和查单条"><header>第 08 天：实现原生 REST 上半场：列出、新建和查单条</header><h1>第 08 天：实现原生 REST 上半场：列出、新建和查单条</h1>
+<article class="day" id="day-08" data-title="第 08 天：实现原生 REST 上半场：列出、新建和查单条"><header>第 08 天：实现原生 REST 上半场：列出、新建和查单条</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-08">https://xiguadev.com/node-60days/day-08</a></p>
 <h2>原课知识精讲</h2>
@@ -689,7 +859,7 @@ curl -i -X POST http://127.0.0.1:3000/tasks -H &#39;content-type: application/js
 <h2>AI 搭档</h2>
 <p>提示词「只用虚构标题，逐个帮我预测 <code>GET /tasks</code>、<code>POST /tasks</code> 和 <code>GET /tasks/:id</code> 的状态码。给一条畸形 JSON 练习，不要要求我分享真实数据。」自己执行 curl 并核对 HTTP 状态码和响应体。</p>
 <div class="done"><label><input type="checkbox" data-day="day-08">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-09" data-title="第 09 天：实现原生 REST 下半场：更新和删除"><header>第 09 天：实现原生 REST 下半场：更新和删除</header><h1>第 09 天：实现原生 REST 下半场：更新和删除</h1>
+<article class="day" id="day-09" data-title="第 09 天：实现原生 REST 下半场：更新和删除"><header>第 09 天：实现原生 REST 下半场：更新和删除</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-09">https://xiguadev.com/node-60days/day-09</a></p>
 <h2>原课知识精讲</h2>
@@ -786,7 +956,7 @@ curl -i http://127.0.0.1:3000/tasks
 <h2>AI 搭档</h2>
 <p>提示词「基于原生任务 API 和虚构 ID，出一道辨认 <code>400</code>、<code>404</code>、<code>204</code> 的 PATCH/DELETE 题。解释校验与资源查找的区别，不要要求数据库或认证。」手动发请求确认状态和数组变化。</p>
 <div class="done"><label><input type="checkbox" data-day="day-09">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-10" data-title="第 10 天：里程碑：验收本机任务板 API"><header>第 10 天：里程碑：验收本机任务板 API</header><h1>第 10 天：里程碑：验收本机任务板 API</h1>
+<article class="day" id="day-10" data-title="第 10 天：里程碑：验收本机任务板 API"><header>第 10 天：里程碑：验收本机任务板 API</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-10">https://xiguadev.com/node-60days/day-10</a></p>
 <h2>原课知识精讲</h2>
@@ -823,7 +993,7 @@ curl -i http://127.0.0.1:3000/tasks/ID
 <h2>AI 搭档</h2>
 <p>提示词「给我一张针对本机任务 API 的手工验收清单，逐个核对方法、路径、预期状态码及是否有响应体。使用虚构数据，不要声称我已经运行任何命令。」自己逐项执行，并记录实际结果。不要向 AI 粘贴身份信息、令牌或真实用户任务。</p>
 <div class="done"><label><input type="checkbox" data-day="day-10">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-11" data-title="第 11 天：用 TypeScript 描述任务类型"><header>第 11 天：用 TypeScript 描述任务类型</header><h1>第 11 天：用 TypeScript 描述任务类型</h1>
+<article class="day" id="day-11" data-title="第 11 天：用 TypeScript 描述任务类型"><header>第 11 天：用 TypeScript 描述任务类型</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-11">https://xiguadev.com/node-60days/day-11</a></p>
 <h2>原课知识精讲</h2>
@@ -887,7 +1057,7 @@ npm run day11
 <h2>AI 搭档</h2>
 <p>提示词「只针对虚构的 Task 类型，给我一个合法状态和一个类型错误状态，让我先判断 <code>tsc</code> 结果。提醒我 TypeScript 类型不负责校验 HTTP JSON。」不要分享真实任务，自己分别运行类型检查和脚本。</p>
 <div class="done"><label><input type="checkbox" data-day="day-11">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-12" data-title="第 12 天：按 REST 约定改进错误和输入边界"><header>第 12 天：按 REST 约定改进错误和输入边界</header><h1>第 12 天：按 REST 约定改进错误和输入边界</h1>
+<article class="day" id="day-12" data-title="第 12 天：按 REST 约定改进错误和输入边界"><header>第 12 天：按 REST 约定改进错误和输入边界</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-12">https://xiguadev.com/node-60days/day-12</a></p>
 <h2>原课知识精讲</h2>
@@ -1003,7 +1173,7 @@ curl -i -X POST http://127.0.0.1:3000/tasks -H &#39;content-type: application/js
 <h2>AI 搭档</h2>
 <p>提示词「仅用虚构任务，检查这个 API 对畸形 JSON、空标题和非法状态的预期错误状态码。指出类型声明为何不等于运行时校验，不要编造实测结果。」自己运行 typecheck 和 curl 并记录实际输出；不要粘贴身份令牌或真实数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-12">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-13" data-title="第 13 天：了解 Node 进程与 Worker"><header>第 13 天：了解 Node 进程与 Worker</header><h1>第 13 天：了解 Node 进程与 Worker</h1>
+<article class="day" id="day-13" data-title="第 13 天：了解 Node 进程与 Worker"><header>第 13 天：了解 Node 进程与 Worker</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-13">https://xiguadev.com/node-60days/day-13</a></p>
 <h2>原课知识精讲</h2>
@@ -1061,7 +1231,7 @@ node day13.mjs 0
 <h2>AI 搭档</h2>
 <p>提示词「用 1 到 10 的虚构数字解释 Worker 消息从主线程发出到结果返回的步骤。再给我一个输入边界预测题，不要声称运行过代码。」用本机命令验算结果，不要分享个人系统信息或环境变量内容。</p>
 <div class="done"><label><input type="checkbox" data-day="day-13">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-14" data-title="第 14 天：集中处理异常，用调试器定位问题"><header>第 14 天：集中处理异常，用调试器定位问题</header><h1>第 14 天：集中处理异常，用调试器定位问题</h1>
+<article class="day" id="day-14" data-title="第 14 天：集中处理异常，用调试器定位问题"><header>第 14 天：集中处理异常，用调试器定位问题</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-14">https://xiguadev.com/node-60days/day-14</a></p>
 <h2>原课知识精讲</h2>
@@ -1109,7 +1279,7 @@ node --inspect-brk debug-demo.mjs
 <h2>AI 搭档</h2>
 <p>提示词「只用这段虚构的 <code>createTask</code>，按执行顺序解释错误从抛出到 catch 的路径。给我一条能触发边界错误的输入，不需要真实日志或系统信息。」自己运行两组输入；日志中只保留必要错误信息。</p>
 <div class="done"><label><input type="checkbox" data-day="day-14">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-15" data-title="第 15 天：复盘并独立验收任务板"><header>第 15 天：复盘并独立验收任务板</header><h1>第 15 天：复盘并独立验收任务板</h1>
+<article class="day" id="day-15" data-title="第 15 天：复盘并独立验收任务板"><header>第 15 天：复盘并独立验收任务板</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-15">https://xiguadev.com/node-60days/day-15</a></p>
 <h2>原课知识精讲</h2>
@@ -1149,8 +1319,8 @@ curl -i http://127.0.0.1:3000/tasks/ID
 <h2>AI 搭档</h2>
 <p>提示词「请以代码审阅者身份，基于我贴出的脱敏 API 片段生成一份 Day 15 手工验收清单，包含方法、路径、预期状态码和待我确认的结果。不要假设命令已经执行，不要索要真实用户数据、口令或令牌。」按清单自己运行命令，保存脱敏的状态码记录。遇到错误时只分享最小复现和删去本机用户名、私有路径及请求秘密后的错误文本。</p>
 <div class="done"><label><input type="checkbox" data-day="day-15">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-16" data-title="第 16 天：用 Nest 模块搭起博客 API"><header>第 16 天：用 Nest 模块搭起博客 API</header><h1>第 16 天：用 Nest 模块搭起博客 API</h1>
 <section class="phase-banner" id="phase-16"><h2>阶段二 · 后端框架与数据库（Day 16–30）</h2><p>进入 Nest 与数据层：模块 / 控制器 / 服务、请求生命周期、DTO 校验、异常响应，再到 PostgreSQL、索引、建模、Prisma 与事务。本阶段把上一阶段的内存任务数据换成可持久化的<strong>博客 API</strong>，重启数据仍在，分页与输入边界都可验收。</p></section>
+<article class="day" id="day-16" data-title="第 16 天：用 Nest 模块搭起博客 API"><header>第 16 天：用 Nest 模块搭起博客 API</header>
 
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-16">https://xiguadev.com/node-60days/day-16</a></p>
@@ -1232,7 +1402,7 @@ export class AppModule {}
 <h2>AI 搭档</h2>
 <p>只给 AI 看这四个类的名称和构造函数签名，请它画一张依赖图，标明哪个模块注册服务。使用课程示例，别粘贴密码或业务数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-16">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-17" data-title="第 17 天：追踪 Nest 请求生命周期"><header>第 17 天：追踪 Nest 请求生命周期</header><h1>第 17 天：追踪 Nest 请求生命周期</h1>
+<article class="day" id="day-17" data-title="第 17 天：追踪 Nest 请求生命周期"><header>第 17 天：追踪 Nest 请求生命周期</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-17">https://xiguadev.com/node-60days/day-17</a></p>
 <h2>原课知识精讲</h2>
@@ -1298,7 +1468,7 @@ get(@Param(&#39;id&#39;, ParseIntPipe) id: number) {
 <h2>AI 搭档</h2>
 <p>把两组课程日志的顺序告诉 AI，让它各出一道题，判断把功能放进守卫、管道还是拦截器。只分享示例日志，别粘贴密码或真实请求数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-17">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-18" data-title="第 18 天：用 DTO 校验 JSON 请求体"><header>第 18 天：用 DTO 校验 JSON 请求体</header><h1>第 18 天：用 DTO 校验 JSON 请求体</h1>
+<article class="day" id="day-18" data-title="第 18 天：用 DTO 校验 JSON 请求体"><header>第 18 天：用 DTO 校验 JSON 请求体</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-18">https://xiguadev.com/node-60days/day-18</a></p>
 <h2>原课知识精讲</h2>
@@ -1379,7 +1549,7 @@ create(@Body() dto: CreatePostDto) {
 <h2>AI 搭档</h2>
 <p>请 AI 根据三个 DTO 字段设计边界输入表，至少列出空白标题、最长合法标题和数字字符串。只给它字段规则和虚构输入，别粘贴密码或业务数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-18">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-19" data-title="第 19 天：区分成功响应与异常响应"><header>第 19 天：区分成功响应与异常响应</header><h1>第 19 天：区分成功响应与异常响应</h1>
+<article class="day" id="day-19" data-title="第 19 天：区分成功响应与异常响应"><header>第 19 天：区分成功响应与异常响应</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-19">https://xiguadev.com/node-60days/day-19</a></p>
 <h2>原课知识精讲</h2>
@@ -1468,7 +1638,7 @@ bootstrap();
 <h2>AI 搭档</h2>
 <p>请 AI 扮演前端开发者，根据示例协议区分表单错误与服务故障，并写出两条提示文案。使用假响应，别粘贴密码、业务数据或线上错误堆栈。</p>
 <div class="done"><label><input type="checkbox" data-day="day-19">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-20" data-title="第 20 天：完成内存版博客里程碑"><header>第 20 天：完成内存版博客里程碑</header><h1>第 20 天：完成内存版博客里程碑</h1>
+<article class="day" id="day-20" data-title="第 20 天：完成内存版博客里程碑"><header>第 20 天：完成内存版博客里程碑</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-20">https://xiguadev.com/node-60days/day-20</a></p>
 <h2>原课知识精讲</h2>
@@ -1546,7 +1716,7 @@ curl -i http://127.0.0.1:3000/posts/1
 <h2>AI 搭档</h2>
 <p>把五个路由和预期状态交给 AI，请它补一条能发现部分更新覆盖原字段的手工验收步骤。只用本课生成的样例，别粘贴密码或业务数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-20">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-21" data-title="第 21 天：PostgreSQL 的表与基本查询"><header>第 21 天：PostgreSQL 的表与基本查询</header><h1>第 21 天：PostgreSQL 的表与基本查询</h1>
+<article class="day" id="day-21" data-title="第 21 天：PostgreSQL 的表与基本查询"><header>第 21 天：PostgreSQL 的表与基本查询</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-21">https://xiguadev.com/node-60days/day-21</a></p>
 <h2>原课知识精讲</h2>
@@ -1602,7 +1772,7 @@ INSERT INTO posts (title, body, author_id) VALUES (&#39;&#39;, &#39;Draft&#39;, 
 <h2>AI 搭档</h2>
 <p>请 AI 对照外键、<code>NOT NULL</code> 和 <code>CHECK</code> 约束解释各自能拦截什么坏数据，并写出一个检查查询。只给虚构表结构，不要粘贴连接串、密码或真实业务数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-21">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-22" data-title="第 22 天：用 JOIN、子查询与聚合查询文章"><header>第 22 天：用 JOIN、子查询与聚合查询文章</header><h1>第 22 天：用 JOIN、子查询与聚合查询文章</h1>
+<article class="day" id="day-22" data-title="第 22 天：用 JOIN、子查询与聚合查询文章"><header>第 22 天：用 JOIN、子查询与聚合查询文章</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-22">https://xiguadev.com/node-60days/day-22</a></p>
 <h2>原课知识精讲</h2>
@@ -1660,7 +1830,7 @@ ORDER BY a.id;
 <h2>AI 搭档</h2>
 <p>给 AI 以上三张查询结果的字段说明，让它出一道区分 <code>ON</code> 与 <code>WHERE</code> 的题并给出反例。不得输入数据库凭据或真实业务数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-22">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-23" data-title="第 23 天：为常用查询设计索引"><header>第 23 天：为常用查询设计索引</header><h1>第 23 天：为常用查询设计索引</h1>
+<article class="day" id="day-23" data-title="第 23 天：为常用查询设计索引"><header>第 23 天：为常用查询设计索引</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-23">https://xiguadev.com/node-60days/day-23</a></p>
 <h2>原课知识精讲</h2>
@@ -1708,7 +1878,7 @@ LIMIT 10;
 <h2>AI 搭档</h2>
 <p>请 AI 根据“按作者过滤、按时间排序”的查询，比较单列索引和复合索引的读写代价。只给假数据规模，不粘贴线上计划、密码或业务数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-23">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-24" data-title="第 24 天：从查询需求反推数据模型"><header>第 24 天：从查询需求反推数据模型</header><h1>第 24 天：从查询需求反推数据模型</h1>
+<article class="day" id="day-24" data-title="第 24 天：从查询需求反推数据模型"><header>第 24 天：从查询需求反推数据模型</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-24">https://xiguadev.com/node-60days/day-24</a></p>
 <h2>原课知识精讲</h2>
@@ -1756,7 +1926,7 @@ ORDER BY p.id, t.name;
 <h2>AI 搭档</h2>
 <p>请 AI 扮演产品经理，问三个问题来确定文章删除、标签大小写、草稿字段的规则。回答只用虚构博客场景，别粘贴密码或业务数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-24">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-25" data-title="第 25 天：固定 Prisma 版本并定义模型"><header>第 25 天：固定 Prisma 版本并定义模型</header><h1>第 25 天：固定 Prisma 版本并定义模型</h1>
+<article class="day" id="day-25" data-title="第 25 天：固定 Prisma 版本并定义模型"><header>第 25 天：固定 Prisma 版本并定义模型</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-25">https://xiguadev.com/node-60days/day-25</a></p>
 <h2>原课知识精讲</h2>
@@ -1858,7 +2028,7 @@ npm run seed
 <h2>AI 搭档</h2>
 <p>请 AI 把 <code>Author 1:N Post</code> 和两个 <code>@@map</code> 映射解释成数据库表关系，再指出一次迁移前的检查清单。给虚构模型，不粘贴密码、连接串或业务数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-25">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-26" data-title="第 26 天：查询作者关系并管理 Prisma 迁移"><header>第 26 天：查询作者关系并管理 Prisma 迁移</header><h1>第 26 天：查询作者关系并管理 Prisma 迁移</h1>
+<article class="day" id="day-26" data-title="第 26 天：查询作者关系并管理 Prisma 迁移"><header>第 26 天：查询作者关系并管理 Prisma 迁移</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-26">https://xiguadev.com/node-60days/day-26</a></p>
 <h2>原课知识精讲</h2>
@@ -1923,7 +2093,7 @@ try {
 <h2>AI 搭档</h2>
 <p>给 AI 看脱敏后的模型字段，让它设计一条列表查询，检查是否只返回需要的作者字段。不要分享 <code>.env</code>、密码或真实文章数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-26">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-27" data-title="第 27 天：在 Nest 中注入 Prisma 数据服务"><header>第 27 天：在 Nest 中注入 Prisma 数据服务</header><h1>第 27 天：在 Nest 中注入 Prisma 数据服务</h1>
+<article class="day" id="day-27" data-title="第 27 天：在 Nest 中注入 Prisma 数据服务"><header>第 27 天：在 Nest 中注入 Prisma 数据服务</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-27">https://xiguadev.com/node-60days/day-27</a></p>
 <h2>原课知识精讲</h2>
@@ -2057,7 +2227,7 @@ curl -i http://127.0.0.1:3000/posts/ID
 <h2>AI 搭档</h2>
 <p>请 AI 根据上述注入关系画出模块依赖图，并指出如何在测试中替换 PrismaService。只给伪造服务签名，不分享连接串或业务数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-27">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-28" data-title="第 28 天：实现分页、检索与排序"><header>第 28 天：实现分页、检索与排序</header><h1>第 28 天：实现分页、检索与排序</h1>
+<article class="day" id="day-28" data-title="第 28 天：实现分页、检索与排序"><header>第 28 天：实现分页、检索与排序</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-28">https://xiguadev.com/node-60days/day-28</a></p>
 <h2>原课知识精讲</h2>
@@ -2122,7 +2292,7 @@ async listPage(query: Record&lt;string, string | undefined&gt;) {
 <h2>AI 搭档</h2>
 <p>给 AI 看允许的分页和排序规则，让它找出至少三种越界输入，并设计接口验收表。只给假查询参数，不粘贴密码或真实业务数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-28">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-29" data-title="第 29 天：用事务保证多步写入并识别并发"><header>第 29 天：用事务保证多步写入并识别并发</header><h1>第 29 天：用事务保证多步写入并识别并发</h1>
+<article class="day" id="day-29" data-title="第 29 天：用事务保证多步写入并识别并发"><header>第 29 天：用事务保证多步写入并识别并发</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-29">https://xiguadev.com/node-60days/day-29</a></p>
 <h2>原课知识精讲</h2>
@@ -2159,7 +2329,7 @@ async listPage(query: Record&lt;string, string | undefined&gt;) {
 <h2>AI 搭档</h2>
 <p>请 AI 给“发布并写审计记录”设计事务失败场景和回滚检查步骤。只用伪造 ID 与数据，别粘贴密码或业务信息。</p>
 <div class="done"><label><input type="checkbox" data-day="day-29">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-30" data-title="第 30 天：完成可持久化博客 API"><header>第 30 天：完成可持久化博客 API</header><h1>第 30 天：完成可持久化博客 API</h1>
+<article class="day" id="day-30" data-title="第 30 天：完成可持久化博客 API"><header>第 30 天：完成可持久化博客 API</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-30">https://xiguadev.com/node-60days/day-30</a></p>
 <h2>原课知识精讲</h2>
@@ -2199,8 +2369,8 @@ npx prisma migrate status
 <h2>AI 搭档</h2>
 <p>请 AI 扮演 API 测试者，按清单找一条最可能遗漏的回归路径，并说明预期状态码。只给虚构响应与字段，绝不粘贴数据库密码、个人凭据或真实业务数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-30">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-31" data-title="第 31 天：用 Session 和 JWT 表达登录状态"><header>第 31 天：用 Session 和 JWT 表达登录状态</header><h1>第 31 天：用 Session 和 JWT 表达登录状态</h1>
 <section class="phase-banner" id="phase-31"><h2>阶段三 · 认证、安全与缓存（Day 31–40）</h2><p>给博客补上生产级能力：Session 与 JWT、RBAC 与资源归属、OIDC、Web 防护基线、Redis 缓存、BullMQ 队列与上传隔离。重点是分清「登录 / 授权 / 资源归属」三件事，并完成可测试的<strong>博客安全版</strong>。</p></section>
+<article class="day" id="day-31" data-title="第 31 天：用 Session 和 JWT 表达登录状态"><header>第 31 天：用 Session 和 JWT 表达登录状态</header>
 
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-31">https://xiguadev.com/node-60days/day-31</a></p>
@@ -2273,7 +2443,7 @@ app.listen(3101, &#39;127.0.0.1&#39;);
 <h2>AI 搭档</h2>
 <p>提示词「用一个虚构后台画出 Session 登录后访问、退出的三步流程，并标注谁保存什么。」人工验收时确认 Cookie 里只有会话凭据，退出会删除服务端记录。只发计数和状态码，去掉 Cookie 与请求头凭据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-31">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-32" data-title="第 32 天：给博客 API 签发并校验 JWT"><header>第 32 天：给博客 API 签发并校验 JWT</header><h1>第 32 天：给博客 API 签发并校验 JWT</h1>
+<article class="day" id="day-32" data-title="第 32 天：给博客 API 签发并校验 JWT"><header>第 32 天：给博客 API 签发并校验 JWT</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-32">https://xiguadev.com/node-60days/day-32</a></p>
 <h2>原课知识精讲</h2>
@@ -2528,7 +2698,7 @@ me(@Req() req: AuthRequest) {
 <h2>AI 搭档</h2>
 <p>提示词「检查这段已脱敏的 Guard 是否检查签名、算法、发行方、受众和过期时间，把检查项对应到代码。」人工核对 <code>verifyOptions</code> 与 Guard，跑过期验收。只分享字段名、状态码和代码，省略密钥、令牌、邮箱与密码。</p>
 <div class="done"><label><input type="checkbox" data-day="day-32">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-33" data-title="第 33 天：用 RBAC 和归属判断约束文章操作"><header>第 33 天：用 RBAC 和归属判断约束文章操作</header><h1>第 33 天：用 RBAC 和归属判断约束文章操作</h1>
+<article class="day" id="day-33" data-title="第 33 天：用 RBAC 和归属判断约束文章操作"><header>第 33 天：用 RBAC 和归属判断约束文章操作</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-33">https://xiguadev.com/node-60days/day-33</a></p>
 <h2>原课知识精讲</h2>
@@ -2686,7 +2856,7 @@ async publishForActor(id: number, sub: string) {
 <h2>AI 搭档</h2>
 <p>提示词「这四条博客授权用例中，哪条能单独验证归属约束？请补一条旧令牌在降权后的测试。」分享角色与虚构编号。人工验收用同一令牌在数据库降权前后各检查一次。</p>
 <div class="done"><label><input type="checkbox" data-day="day-33">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-34" data-title="第 34 天：用 OAuth 2.0 与 OIDC 接入外部登录"><header>第 34 天：用 OAuth 2.0 与 OIDC 接入外部登录</header><h1>第 34 天：用 OAuth 2.0 与 OIDC 接入外部登录</h1>
+<article class="day" id="day-34" data-title="第 34 天：用 OAuth 2.0 与 OIDC 接入外部登录"><header>第 34 天：用 OAuth 2.0 与 OIDC 接入外部登录</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-34">https://xiguadev.com/node-60days/day-34</a></p>
 <h2>原课知识精讲</h2>
@@ -2789,7 +2959,7 @@ export class OidcController {
 <h2>AI 搭档</h2>
 <p>提示词「为博客外部登录说明授权码、ID Token 和应用访问令牌分别由谁签发、用在哪里。」人工检查 <code>(iss, sub)</code> 双键和四条预期状态。删去 Cookie、授权码、真实标识和全部令牌再分享。</p>
 <div class="done"><label><input type="checkbox" data-day="day-34">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-35" data-title="第 35 天：给博客建立 Web 防护基线"><header>第 35 天：给博客建立 Web 防护基线</header><h1>第 35 天：给博客建立 Web 防护基线</h1>
+<article class="day" id="day-35" data-title="第 35 天：给博客建立 Web 防护基线"><header>第 35 天：给博客建立 Web 防护基线</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-35">https://xiguadev.com/node-60days/day-35</a></p>
 <h2>原课知识精讲</h2>
@@ -2838,7 +3008,7 @@ export class CreatePostDto {
 <h2>AI 搭档</h2>
 <p>提示词「根据这份脱敏的入口配置，列出 DTO、浏览器安全头和 IP 限流分别通过哪个本地测试验收。」人工核对上面的 201、400、401、429 和响应头。只提供配置结构及状态码，无须提交原始请求体或真实凭据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-35">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-36" data-title="第 36 天：给博客 Post 列表加 Redis 缓存"><header>第 36 天：给博客 Post 列表加 Redis 缓存</header><h1>第 36 天：给博客 Post 列表加 Redis 缓存</h1>
+<article class="day" id="day-36" data-title="第 36 天：给博客 Post 列表加 Redis 缓存"><header>第 36 天：给博客 Post 列表加 Redis 缓存</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-36">https://xiguadev.com/node-60days/day-36</a></p>
 <h2>原课知识精讲</h2>
@@ -2936,7 +3106,7 @@ export class CacheModule {}
 <h2>AI 搭档</h2>
 <p>提示词「阅读这段脱敏的博客缓存服务，列出事实来源、缓存键、TTL、失效时机和 Redis 故障降级路径；不要猜测未提供的配置。」人工逐项对照代码。分享前删除 Redis URL、数据库连接串、用户邮箱、令牌和文章私密内容。</p>
 <div class="done"><label><input type="checkbox" data-day="day-36">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-37" data-title="第 37 天：掌握 Redis 的键、TTL 与原子操作"><header>第 37 天：掌握 Redis 的键、TTL 与原子操作</header><h1>第 37 天：掌握 Redis 的键、TTL 与原子操作</h1>
+<article class="day" id="day-37" data-title="第 37 天：掌握 Redis 的键、TTL 与原子操作"><header>第 37 天：掌握 Redis 的键、TTL 与原子操作</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-37">https://xiguadev.com/node-60days/day-37</a></p>
 <h2>原课知识精讲</h2>
@@ -2990,7 +3160,7 @@ try {
 <h2>AI 搭档</h2>
 <p>提示词「比较 <code>INCR</code> 后 <code>EXPIRE</code> 与原子 Lua 限流的并发差异，只根据这段脱敏代码给出测试矩阵。」人工验收要求包含首次计数、超限、不同用户、过期和 Redis 失败五种情况。AI 输入不能包含连接地址中的密码、真实 IP、Cookie 或用户 ID。</p>
 <div class="done"><label><input type="checkbox" data-day="day-37">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-38" data-title="第 38 天：用 BullMQ 把耗时任务放到队列"><header>第 38 天：用 BullMQ 把耗时任务放到队列</header><h1>第 38 天：用 BullMQ 把耗时任务放到队列</h1>
+<article class="day" id="day-38" data-title="第 38 天：用 BullMQ 把耗时任务放到队列"><header>第 38 天：用 BullMQ 把耗时任务放到队列</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-38">https://xiguadev.com/node-60days/day-38</a></p>
 <h2>原课知识精讲</h2>
@@ -3099,7 +3269,7 @@ export class PostIndexProcessor extends WorkerHost {
 <h2>AI 搭档</h2>
 <p>提示词「把这个文章重建索引任务改造成可重试幂等设计：指出 jobId、最少字段、删除文章时的结果和临时失败的处理方式。」人工检查 API 的 202 语义和管理员授权。只发送字段名和虚构文章编号，删掉队列地址、日志、令牌和真实内容。</p>
 <div class="done"><label><input type="checkbox" data-day="day-38">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-39" data-title="第 39 天：安全接收并隔离文章图片"><header>第 39 天：安全接收并隔离文章图片</header><h1>第 39 天：安全接收并隔离文章图片</h1>
+<article class="day" id="day-39" data-title="第 39 天：安全接收并隔离文章图片"><header>第 39 天：安全接收并隔离文章图片</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-39">https://xiguadev.com/node-60days/day-39</a></p>
 <h2>原课知识精讲</h2>
@@ -3247,7 +3417,7 @@ export class UploadsModule {}
 <h2>AI 搭档</h2>
 <p>提示词「根据这段脱敏上传控制器，列出允许列表、大小限制、隔离保存、归属检查和异常清理的人工验收项，并给出期望状态码。」人工逐项检查 401、403、404、400、413 与成功路径。不要将真实文件、原始文件名、绝对路径、令牌或图片内容发送给 AI。</p>
 <div class="done"><label><input type="checkbox" data-day="day-39">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-40" data-title="第 40 天：博客安全与异步能力里程碑"><header>第 40 天：博客安全与异步能力里程碑</header><h1>第 40 天：博客安全与异步能力里程碑</h1>
+<article class="day" id="day-40" data-title="第 40 天：博客安全与异步能力里程碑"><header>第 40 天：博客安全与异步能力里程碑</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-40">https://xiguadev.com/node-60days/day-40</a></p>
 <h2>原课知识精讲</h2>
@@ -3347,8 +3517,8 @@ export function validateEnv(input: Record&lt;string, unknown&gt;) {
 <h2>AI 搭档</h2>
 <p>提示词「这是一个脱敏的博客里程碑检查表，请按认证、授权、缓存、队列、上传、配置和日志分类，指出缺失的人工验收项；不要补造服务已运行的结论。」人工以状态码和数据是否改变为准，逐条复核。提交给 AI 前只保留虚构编号、字段名、测试结果和错误类别。</p>
 <div class="done"><label><input type="checkbox" data-day="day-40">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-41" data-title="第 41 天：用 Docker 打包博客 API"><header>第 41 天：用 Docker 打包博客 API</header><h1>第 41 天：用 Docker 打包博客 API</h1>
 <section class="phase-banner" id="phase-41"><h2>阶段四 · DevOps 与部署（Day 41–45）</h2><p>从「能跑」到「在哪都能跑」：Docker 多阶段构建、Compose 编排、CI/CD 检查、手动发布与回滚、结构化日志与健康检查。这一阶段交付的是<strong>可重复的发布流程</strong>，不是一次性的部署动作。</p></section>
+<article class="day" id="day-41" data-title="第 41 天：用 Docker 打包博客 API"><header>第 41 天：用 Docker 打包博客 API</header>
 
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-41">https://xiguadev.com/node-60days/day-41</a></p>
@@ -3421,7 +3591,7 @@ CMD [&quot;node&quot;, &quot;dist/main.js&quot;]
 <h2>AI 搭档</h2>
 <p>提示词「审阅这份脱敏 Dockerfile：检查运行用户、构建阶段、秘密是否进入镜像、端口绑定与启动命令，并列出本地验收命令。」人工检查镜像环境和健康端点。不要发送 <code>.env</code>、镜像仓库凭据、数据库 URL 或令牌。</p>
 <div class="done"><label><input type="checkbox" data-day="day-41">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-42" data-title="第 42 天：用 Compose 启动 API 与 PostgreSQL"><header>第 42 天：用 Compose 启动 API 与 PostgreSQL</header><h1>第 42 天：用 Compose 启动 API 与 PostgreSQL</h1>
+<article class="day" id="day-42" data-title="第 42 天：用 Compose 启动 API 与 PostgreSQL"><header>第 42 天：用 Compose 启动 API 与 PostgreSQL</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-42">https://xiguadev.com/node-60days/day-42</a></p>
 <h2>原课知识精讲</h2>
@@ -3499,7 +3669,7 @@ docker compose up -d api
 <h2>AI 搭档</h2>
 <p>提示词「解释这份脱敏 Compose 中端口绑定、具名卷、数据库健康检查和迁移命令的作用，并指出不可提交的字段。」人工确认数据持久化与销毁命令影响。不要把 <code>docker compose config</code> 中展开的密码或 JWT 值传给 AI。</p>
 <div class="done"><label><input type="checkbox" data-day="day-42">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-43" data-title="第 43 天：为博客建立 CI/CD 检查流水线"><header>第 43 天：为博客建立 CI/CD 检查流水线</header><h1>第 43 天：为博客建立 CI/CD 检查流水线</h1>
+<article class="day" id="day-43" data-title="第 43 天：为博客建立 CI/CD 检查流水线"><header>第 43 天：为博客建立 CI/CD 检查流水线</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-43">https://xiguadev.com/node-60days/day-43</a></p>
 <h2>原课知识精讲</h2>
@@ -3568,7 +3738,7 @@ jobs:
 <h2>AI 搭档</h2>
 <p>提示词「审阅这段脱敏 CI 配置，找出权限过宽、测试/生产环境混用和未锁定步骤，并提出检查方法。」人工核对权限、服务地址和脚本输出，不接受 AI 凭空报告的通过结果。不要发送真实 Actions Secret、私有仓库令牌或 CI 日志中的凭据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-43">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-44" data-title="第 44 天：规划一次手动云端发布与回滚"><header>第 44 天：规划一次手动云端发布与回滚</header><h1>第 44 天：规划一次手动云端发布与回滚</h1>
+<article class="day" id="day-44" data-title="第 44 天：规划一次手动云端发布与回滚"><header>第 44 天：规划一次手动云端发布与回滚</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-44">https://xiguadev.com/node-60days/day-44</a></p>
 <h2>原课知识精讲</h2>
@@ -3604,7 +3774,7 @@ jobs:
 <h2>AI 搭档</h2>
 <p>提示词「用虚构服务信息审阅这张手动发布卡：指出遗漏的审批、备份、兼容迁移、健康验收、成本提醒和回滚步骤，不要访问云端。」人工验证每一步有责任人和停止条件。只提供虚构 SHA 与成本，不提供账户 ID、秘密、真实域名或客户数据。</p>
 <div class="done"><label><input type="checkbox" data-day="day-44">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-45" data-title="第 45 天：为博客添加结构化日志、观测与健康检查"><header>第 45 天：为博客添加结构化日志、观测与健康检查</header><h1>第 45 天：为博客添加结构化日志、观测与健康检查</h1>
+<article class="day" id="day-45" data-title="第 45 天：为博客添加结构化日志、观测与健康检查"><header>第 45 天：为博客添加结构化日志、观测与健康检查</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-45">https://xiguadev.com/node-60days/day-45</a></p>
 <h2>原课知识精讲</h2>
@@ -3698,8 +3868,8 @@ export class LoggingInterceptor implements NestInterceptor {
 <h2>AI 搭档</h2>
 <p>提示词「审阅以下删除所有真实值的结构化日志样例，标出可能的秘密字段，并为健康检查给出 liveness、readiness 的状态码验收表。」人工逐字段确认脱敏和依赖边界。只分享虚构请求 ID、路由模板、状态码和延迟，不分享真实日志、令牌、IP 或用户标识。</p>
 <div class="done"><label><input type="checkbox" data-day="day-45">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-46" data-title="第 46 天：把协作任务板写成需求和接口契约"><header>第 46 天：把协作任务板写成需求和接口契约</header><h1>第 46 天：把协作任务板写成需求和接口契约</h1>
 <section class="phase-banner" id="phase-46"><h2>阶段五 · 全栈项目实战（Day 46–55）</h2><p>把前四阶段的能力迁移到团队协作系统：需求与接口契约、项目脚手架、用户与团队、任务 CRUD、看板过滤排序、实时更新、通知队列、统计与前后端联调。最终要能演示一条完整链路：<strong>登录 → 进入团队 → 操作任务 → 页面显示结果</strong>。</p></section>
+<article class="day" id="day-46" data-title="第 46 天：把协作任务板写成需求和接口契约"><header>第 46 天：把协作任务板写成需求和接口契约</header>
 
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-46">https://xiguadev.com/node-60days/day-46</a></p>
@@ -3750,7 +3920,7 @@ export class LoggingInterceptor implements NestInterceptor {
 <h2>AI 搭档</h2>
 <p>先自己写五条，再发脱敏契约。「请逐条问我是谁在何处做什么，并指出哪个预期状态码缺了前置条件。先等我解释，再点评，别替我重写。输入只含虚构团队和邮箱，绝不提供秘密或真实客户数据。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-46">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-47" data-title="第 47 天：启动 Nest、数据库和 React 页面"><header>第 47 天：启动 Nest、数据库和 React 页面</header><h1>第 47 天：启动 Nest、数据库和 React 页面</h1>
+<article class="day" id="day-47" data-title="第 47 天：启动 Nest、数据库和 React 页面"><header>第 47 天：启动 Nest、数据库和 React 页面</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-47">https://xiguadev.com/node-60days/day-47</a></p>
 <h2>原课知识精讲</h2>
@@ -3884,7 +4054,7 @@ export default function Page() {
 <h2>AI 搭档</h2>
 <p>自己定位一遍再问。「我的页面能显示，Vite 转发健康检查时失败。请根据我贴的终端摘要，分别问我如何确认浏览器、代理、API 和数据库，再核对我的推断。只给下一条本机检查建议。我会删掉连接串、密码、令牌和真实客户数据。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-47">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-48" data-title="第 48 天：登录、建团队和验证成员身份"><header>第 48 天：登录、建团队和验证成员身份</header><h1>第 48 天：登录、建团队和验证成员身份</h1>
+<article class="day" id="day-48" data-title="第 48 天：登录、建团队和验证成员身份"><header>第 48 天：登录、建团队和验证成员身份</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-48">https://xiguadev.com/node-60days/day-48</a></p>
 <h2>原课知识精讲</h2>
@@ -4113,7 +4283,7 @@ export class TeamsController {
 <h2>AI 搭档</h2>
 <p>画完请求顺序再问。「请用三张卡片检查我的调用顺序，分别问所用令牌、URL 中的团队和数据库中的成员关系。先给我机会判断结果，再对照 401/403。输入只保留假账号和状态码，删掉 JWT、密码、连接串及真实客户数据。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-48">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-49" data-title="第 49 天：把项目和任务 CRUD 都限定在团队内"><header>第 49 天：把项目和任务 CRUD 都限定在团队内</header><h1>第 49 天：把项目和任务 CRUD 都限定在团队内</h1>
+<article class="day" id="day-49" data-title="第 49 天：把项目和任务 CRUD 都限定在团队内"><header>第 49 天：把项目和任务 CRUD 都限定在团队内</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-49">https://xiguadev.com/node-60days/day-49</a></p>
 <h2>原课知识精讲</h2>
@@ -4320,7 +4490,7 @@ export class TasksController {
 <h2>AI 搭档</h2>
 <p>自己先读一遍查询条件。「请只检查我贴出的 <code>where</code> 和请求契约。逐个问我哪一层校验团队成员、哪一层约束项目与任务，再指出一条值得补的正常权限测试。不要直接给实现。片段使用虚构 ID，删掉密码、令牌和真实客户数据。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-49">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-50" data-title="第 50 天：给看板三列加过滤、排序和翻页"><header>第 50 天：给看板三列加过滤、排序和翻页</header><h1>第 50 天：给看板三列加过滤、排序和翻页</h1>
+<article class="day" id="day-50" data-title="第 50 天：给看板三列加过滤、排序和翻页"><header>第 50 天：给看板三列加过滤、排序和翻页</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-50">https://xiguadev.com/node-60days/day-50</a></p>
 <h2>原课知识精讲</h2>
@@ -4387,7 +4557,7 @@ curl -i -H &quot;Authorization: Bearer $TOKEN&quot; &quot;$BASE?status=todo&amp;
 <h2>AI 搭档</h2>
 <p>自己先记下两页 ID 再问。「根据我贴的三列虚构 JSON，请出一道中途移动任务的推演题，等我回答哪些列要重读，再解释 offset 为什么会漂移。不要代写列表接口。材料里只留合成任务 ID、状态与页号，删掉令牌和真实客户数据。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-50">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-51" data-title="第 51 天：让同团队看板收到实时更新"><header>第 51 天：让同团队看板收到实时更新</header><h1>第 51 天：让同团队看板收到实时更新</h1>
+<article class="day" id="day-51" data-title="第 51 天：让同团队看板收到实时更新"><header>第 51 天：让同团队看板收到实时更新</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-51">https://xiguadev.com/node-60days/day-51</a></p>
 <h2>原课知识精讲</h2>
@@ -4456,7 +4626,7 @@ export class BoardGateway implements OnGatewayConnection {
 <h2>AI 搭档</h2>
 <p>先自己描述房间授权再问。「请扮演测试同事，只问我三个问题：房间名由谁决定、服务端用什么资料确认成员、事件漏掉后从哪里恢复。等我回答后才指出缺的正常权限测试。只提供合成 ID，不贴 JWT、密码或真实客户资料。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-51">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-52" data-title="第 52 天：把通知放进 Redis 与 BullMQ"><header>第 52 天：把通知放进 Redis 与 BullMQ</header><h1>第 52 天：把通知放进 Redis 与 BullMQ</h1>
+<article class="day" id="day-52" data-title="第 52 天：把通知放进 Redis 与 BullMQ"><header>第 52 天：把通知放进 Redis 与 BullMQ</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-52">https://xiguadev.com/node-60days/day-52</a></p>
 <h2>原课知识精讲</h2>
@@ -4596,7 +4766,7 @@ export class NotificationsProcessor extends WorkerHost {
 <h2>AI 搭档</h2>
 <p>先画出提交顺序再问。「请用『任务 transaction、通知列、Redis job、消费者』四个节点让我解释故障时资料在哪。每次只问一个问题，不代画答案；最后指出哪个步骤需幂等。内容用虚构 ID，不贴 Redis URL、凭证或真实客户资料。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-52">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-53" data-title="第 53 天：用资料库统计支援团队看板"><header>第 53 天：用资料库统计支援团队看板</header><h1>第 53 天：用资料库统计支援团队看板</h1>
+<article class="day" id="day-53" data-title="第 53 天：用资料库统计支援团队看板"><header>第 53 天：用资料库统计支援团队看板</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-53">https://xiguadev.com/node-60days/day-53</a></p>
 <h2>原课知识精讲</h2>
@@ -4644,7 +4814,7 @@ stats(@Param(&#39;teamId&#39;) t: string, @Param(&#39;projectId&#39;) p: string)
 <h2>AI 搭档</h2>
 <p>先手算一次再问。「请根据我提供的三列合成任务状态，先问我预期计数，再核对 <code>COUNT</code>、空列和跨团队请求的结果。不要建议我以页面资料总结全量。不得贴真实客户资料或凭证。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-53">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-54" data-title="第 54 天：用 React 完成登入后的任务列表"><header>第 54 天：用 React 完成登入后的任务列表</header><h1>第 54 天：用 React 完成登入后的任务列表</h1>
+<article class="day" id="day-54" data-title="第 54 天：用 React 完成登入后的任务列表"><header>第 54 天：用 React 完成登入后的任务列表</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-54">https://xiguadev.com/node-60days/day-54</a></p>
 <h2>原课知识精讲</h2>
@@ -4933,7 +5103,7 @@ export default function Page() {
 <h2>AI 搭档</h2>
 <p>先操作一次再问。「请按照登入、载入团队、载入专案、载入任务、新增、错误六个状态逐项问我画面目前呈现什么。等我回答后，指出哪个事件可能没有清除旧错误或 loading。不要替我编写整个页面；只用合成帐号，不贴 token 或真实客户资料。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-54">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-55" data-title="第 55 天：准备部署设定与交付检查"><header>第 55 天：准备部署设定与交付检查</header><h1>第 55 天：准备部署设定与交付检查</h1>
+<article class="day" id="day-55" data-title="第 55 天：准备部署设定与交付检查"><header>第 55 天：准备部署设定与交付检查</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-55">https://xiguadev.com/node-60days/day-55</a></p>
 <h2>原课知识精讲</h2>
@@ -4981,8 +5151,8 @@ npm run build
 <h2>AI 搭档</h2>
 <p>先填清单再问。「请只做部署准备的口头检查，一次问一项：我在哪个环境、资料库是哪个、秘密由谁注入、迁移如何执行、怎样判断可导流。等我回答后再指出缺漏，不要帮我建立云端服务或操作帐号。请提醒我移除任何可能的凭证与真实客户资料。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-55">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-56" data-title="第 56 天：为权限和关键流程写可回归测试"><header>第 56 天：为权限和关键流程写可回归测试</header><h1>第 56 天：为权限和关键流程写可回归测试</h1>
 <section class="phase-banner" id="phase-56"><h2>阶段六 · 测试、优化与系统设计（Day 56–60）</h2><p>补齐工程能力：写能回归的测试、用数据定位性能瓶颈、画可扩展的系统、把项目整理成作品与面试答案，最后验收复盘。结课产物是<strong>可复现的作品 README、测试清单、改进前后证据及项目讲解</strong>。</p></section>
+<article class="day" id="day-56" data-title="第 56 天：为权限和关键流程写可回归测试"><header>第 56 天：为权限和关键流程写可回归测试</header>
 
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-56">https://xiguadev.com/node-60days/day-56</a></p>
@@ -5417,7 +5587,7 @@ NODE_ENV=test node --env-file=.env.test ./node_modules/jest/bin/jest.js --config
 <h2>AI 搭档</h2>
 <p>先自己列期望状态码再问。「请以测试审查者身份检查我的完整测试：环境是否在入口加载、beforeAll 是否真正注册和登录、token 与 ID 是否来自 HTTP、是否验证持久化、cleanup 是否只影响本次数据、连接是否关闭。一次指出一个缺口，让我解释为什么应是 401、403、404、409 或 400。只接收脱敏代码和输出，不上传令牌、密码、连接串或真实数据。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-56">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-57" data-title="第 57 天：用数据定位看板性能瓶颈"><header>第 57 天：用数据定位看板性能瓶颈</header><h1>第 57 天：用数据定位看板性能瓶颈</h1>
+<article class="day" id="day-57" data-title="第 57 天：用数据定位看板性能瓶颈"><header>第 57 天：用数据定位看板性能瓶颈</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-57">https://xiguadev.com/node-60days/day-57</a></p>
 <h2>原课知识精讲</h2>
@@ -5455,7 +5625,7 @@ LIMIT 20 OFFSET 0;
 <h2>AI 搭档</h2>
 <p>先贴脱敏指标表再问。「请只根据环境、数据量、p50、p95、错误率和 EXPLAIN 摘要，帮我提出三个可验证假设；每次让我先选一个实验，不直接改代码。请提醒我不要对生产地址压测，也不要提交令牌、连接串或客户数据。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-57">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-58" data-title="第 58 天：把协作任务板画成可扩展的系统"><header>第 58 天：把协作任务板画成可扩展的系统</header><h1>第 58 天：把协作任务板画成可扩展的系统</h1>
+<article class="day" id="day-58" data-title="第 58 天：把协作任务板画成可扩展的系统"><header>第 58 天：把协作任务板画成可扩展的系统</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-58">https://xiguadev.com/node-60days/day-58</a></p>
 <h2>原课知识精讲</h2>
@@ -5488,7 +5658,7 @@ PostgreSQL 16（事实数据） Redis（队列与短期状态）
 <h2>AI 搭档</h2>
 <p>先自己画架构再问。「请以面试官身份给我一个故障场景，一次只问一个追问：数据在哪、谁负责重试、用户看到什么、如何恢复。等我回答后指出遗漏的团队隔离或一致性条件，不替我完成整张设计图。只使用合成容量数据。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-58">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-59" data-title="第 59 天：把项目整理成作品、简历和面试答案"><header>第 59 天：把项目整理成作品、简历和面试答案</header><h1>第 59 天：把项目整理成作品、简历和面试答案</h1>
+<article class="day" id="day-59" data-title="第 59 天：把项目整理成作品、简历和面试答案"><header>第 59 天：把项目整理成作品、简历和面试答案</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-59">https://xiguadev.com/node-60days/day-59</a></p>
 <h2>原课知识精讲</h2>
@@ -5518,7 +5688,7 @@ PostgreSQL 16（事实数据） Redis（队列与短期状态）
 <h2>AI 搭档</h2>
 <p>先写自己的答案再问。「请模拟 Node 全栈面试，每次问一个和协作任务板相关的问题，等待我的回答后按正确性、证据、边界三项各打分；只指出一处最值得改进的地方，不代写答案。提醒我删除令牌、连接串、密码和真实客户信息。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-59">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article>
-<article class="day" id="day-60" data-title="第 60 天：验收、复盘并规划下一段学习"><header>第 60 天：验收、复盘并规划下一段学习</header><h1>第 60 天：验收、复盘并规划下一段学习</h1>
+<article class="day" id="day-60" data-title="第 60 天：验收、复盘并规划下一段学习"><header>第 60 天：验收、复盘并规划下一段学习</header>
 
 <p>原课：<a href="https://xiguadev.com/node-60days/day-60">https://xiguadev.com/node-60days/day-60</a></p>
 <h2>原课知识精讲</h2>
@@ -5554,11 +5724,182 @@ PostgreSQL 16（事实数据） Redis（队列与短期状态）
 <p>先独立完成验收和复盘再问。「请作为结课评审，按需求、实现、权限、测试、性能、交付五项逐项提问，每次只问一个可验证问题；我的回答后指出证据是否足够和下一步最小实验。不要替我润色成虚假成果，也不要让我上传秘密、真实客户数据、令牌或数据库导出。」</p>
 <div class="done"><label><input type="checkbox" data-day="day-60">我已跟做并验收</label><a href="#top">回到顶部 ↑</a></div></article><p class="small">本地进度保存在浏览器，不会上传。代码需要依赖或数据库时按当天说明准备；没有实测的云服务与系统组件会明确标注。</p></main>
 <script>
-const links=[...document.querySelectorAll('[data-link]')];
-const key='node-ai-fullstack-60-day-progress-v1';let saved={};try{saved=JSON.parse(localStorage.getItem(key)||'{}')}catch{}
-function update(){const boxes=[...document.querySelectorAll('[data-day]')];const count=boxes.filter(x=>x.checked).length;document.querySelector('#progress').textContent='已验收 '+count+' / 60 天 · 自动保存';for(const link of links)link.classList.toggle('checked',Boolean(saved[link.dataset.link]))}
-for(const box of document.querySelectorAll('[data-day]')){box.checked=Boolean(saved[box.dataset.day]);box.addEventListener('change',()=>{saved[box.dataset.day]=box.checked;try{localStorage.setItem(key,JSON.stringify(saved))}catch{}update()})}update();
-document.querySelector('#search').addEventListener('input',event=>{const query=event.target.value.trim().toLowerCase();let count=0;for(const link of links){const visible=link.textContent.toLowerCase().includes(query);link.classList.toggle('hidden',!visible);if(visible)count++}document.querySelector('#no-results').classList.toggle('hidden',count>0)});
-for(const pre of document.querySelectorAll('pre')){const code=pre.querySelector('code');if(!code)continue;const button=document.createElement('button');button.className='copy';button.textContent='复制代码';button.onclick=async()=>{try{await navigator.clipboard.writeText(code.textContent);button.textContent='已复制'}catch{const range=document.createRange();range.selectNodeContents(code);const selection=window.getSelection();selection.removeAllRanges();selection.addRange(range);button.textContent='已选中，请按 Ctrl+C'}setTimeout(()=>button.textContent='复制代码',1600)};pre.prepend(button)}
-const observer=new IntersectionObserver(entries=>{for(const entry of entries)if(entry.isIntersecting)for(const link of links)link.classList.toggle('active',link.dataset.link===entry.target.id)},{rootMargin:'-8% 0px -68% 0px'});document.querySelectorAll('.day').forEach(day=>observer.observe(day));
+(function () {
+  'use strict';
+
+  var key = 'node-ai-fullstack-60-day-progress-v1';
+  var saved = {};
+  try { saved = JSON.parse(localStorage.getItem(key) || '{}'); } catch (e) {}
+
+  var links = Array.prototype.slice.call(document.querySelectorAll('[data-link]'));
+  var boxes = Array.prototype.slice.call(document.querySelectorAll('[data-day]'));
+
+  function phaseOf(n) {
+    if (n <= 15) return 1;
+    if (n <= 30) return 2;
+    if (n <= 40) return 3;
+    if (n <= 45) return 4;
+    if (n <= 55) return 5;
+    return 6;
+  }
+
+  // 六阶段配色标记
+  Array.prototype.forEach.call(document.querySelectorAll('.day[id^="day-"]'), function (a) {
+    var n = parseInt(a.id.slice(4), 10);
+    if (n) a.setAttribute('data-phase', String(phaseOf(n)));
+  });
+  Array.prototype.forEach.call(document.querySelectorAll('.phase-banner'), function (b) {
+    var p = b.id.replace('phase-', '');
+    b.setAttribute('data-phase', p);
+    b.setAttribute('data-phase-label', 'PHASE ' + ('0' + p).slice(-2));
+  });
+
+  // 标题：加 DAY 徽章（重复 h1 已在结构层移除）
+  Array.prototype.forEach.call(document.querySelectorAll('.day > header'), function (h) {
+    var m = h.textContent.match(/^第\s*(\d+)\s*天[:：]\s*(.*)$/);
+    if (!m) return;
+    h.textContent = '';
+    var badge = document.createElement('span');
+    badge.className = 'day-no';
+    badge.textContent = 'DAY ' + m[1];
+    var title = document.createElement('span');
+    title.textContent = m[2];
+    h.appendChild(badge);
+    h.appendChild(title);
+  });
+
+  Array.prototype.forEach.call(document.querySelectorAll('.day h2'), function (h) {
+    if (h.textContent.trim() === '原课知识精讲') h.classList.add('h2-lecture');
+  });
+
+  // 代码块：语言标签 + 复制按钮
+  Array.prototype.forEach.call(document.querySelectorAll('pre'), function (pre) {
+    var code = pre.querySelector('code');
+    if (!code) return;
+    var lang = (code.className || '').replace('language-', '') || 'text';
+    pre.setAttribute('data-lang', lang);
+    var button = document.createElement('button');
+    button.className = 'copy';
+    button.type = 'button';
+    button.textContent = '复制代码';
+    button.onclick = function () {
+      try {
+        navigator.clipboard.writeText(code.textContent);
+        button.textContent = '已复制';
+      } catch (e) {
+        var range = document.createRange();
+        range.selectNodeContents(code);
+        var selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+        button.textContent = '已选中，请按 Ctrl+C';
+      }
+      setTimeout(function () { button.textContent = '复制代码'; }, 1600);
+    };
+    pre.insertBefore(button, pre.firstChild);
+  });
+
+  // 验收进度
+  var progressEl = document.getElementById('progress');
+  var progressFill = null;
+  if (progressEl) {
+    var track = document.createElement('div');
+    track.className = 'progress-track';
+    progressFill = document.createElement('i');
+    track.appendChild(progressFill);
+    progressEl.parentNode.insertBefore(track, progressEl.nextSibling);
+  }
+
+  function update() {
+    var count = boxes.filter(function (x) { return x.checked; }).length;
+    if (progressEl) {
+      progressEl.textContent = '已验收 ' + count + ' / 60 天 · 自动保存';
+      if (progressFill) progressFill.style.width = (count / 60 * 100) + '%';
+    }
+    links.forEach(function (link) {
+      link.classList.toggle('checked', Boolean(saved[link.getAttribute('data-link')]));
+    });
+  }
+
+  boxes.forEach(function (box) {
+    box.checked = Boolean(saved[box.getAttribute('data-day')]);
+    box.addEventListener('change', function () {
+      saved[box.getAttribute('data-day')] = box.checked;
+      try { localStorage.setItem(key, JSON.stringify(saved)); } catch (e) {}
+      update();
+    });
+  });
+  update();
+
+  // 目录项归属到各自阶段，供搜索时隐藏空分组
+  var lastPhase = null;
+  links.forEach(function (link) {
+    var el = link.previousElementSibling;
+    while (el && !(el.classList && el.classList.contains('nav-phase'))) {
+      el = el.previousElementSibling;
+    }
+    if (el) lastPhase = el;
+    link._phase = lastPhase;
+  });
+
+  var search = document.getElementById('search');
+  if (search) {
+    search.addEventListener('input', function (event) {
+      var query = event.target.value.trim().toLowerCase();
+      var visible = 0;
+      links.forEach(function (link) {
+        var show = link.textContent.toLowerCase().indexOf(query) >= 0;
+        link.classList.toggle('hidden', !show);
+        if (show) visible++;
+      });
+      Array.prototype.forEach.call(document.querySelectorAll('.nav-phase'), function (g) {
+        var any = links.some(function (link) {
+          return link._phase === g && !link.classList.contains('hidden');
+        });
+        g.classList.toggle('hidden', !any);
+      });
+      var noResults = document.getElementById('no-results');
+      if (noResults) noResults.classList.toggle('hidden', visible > 0 || !query);
+    });
+  }
+
+  // 顶部阅读进度条与返回顶部
+  var bar = document.createElement('div');
+  bar.className = 'read-progress';
+  var barFill = document.createElement('i');
+  bar.appendChild(barFill);
+  document.body.insertBefore(bar, document.body.firstChild);
+
+  var toTop = document.createElement('button');
+  toTop.className = 'to-top';
+  toTop.type = 'button';
+  toTop.textContent = '\u2191';
+  toTop.title = '回到顶部';
+  toTop.onclick = function () { window.scrollTo({ top: 0, behavior: 'smooth' }); };
+  document.body.appendChild(toTop);
+
+  function onScroll() {
+    var max = document.documentElement.scrollHeight - window.innerHeight;
+    var pct = max > 0 ? Math.min(100, window.scrollY / max * 100) : 100;
+    barFill.style.width = pct + '%';
+    toTop.classList.toggle('show', window.scrollY > 500);
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  onScroll();
+
+  if ('IntersectionObserver' in window) {
+    var observer = new IntersectionObserver(function (entries) {
+      entries.forEach(function (entry) {
+        if (entry.isIntersecting) {
+          links.forEach(function (link) {
+            link.classList.toggle('active', link.getAttribute('data-link') === entry.target.id);
+          });
+        }
+      });
+    }, { rootMargin: '-8% 0px -68% 0px' });
+    Array.prototype.forEach.call(document.querySelectorAll('.day'), function (day) {
+      observer.observe(day);
+    });
+  }
+})();
 </script></body></html>

@@ -2,7 +2,7 @@
 
 [![教程校验与编译](https://github.com/html546/nodejs-ai-fullstack-60days/actions/workflows/ci.yml/badge.svg)](https://github.com/html546/nodejs-ai-fullstack-60days/actions/workflows/ci.yml)
 
-一套 60 天的中文 Node.js 全栈教程，主线是**三个逐渐升级的项目**：Node 原生任务 API → NestJS + PostgreSQL/Prisma 博客 API → Nest + React 协作任务板。每天都有原课链接、学习目标、跟做代码、练习、可折叠的参考答案与验收，以及「AI 搭档」提示词。
+一套 60 天的中文 Node.js 全栈教程，主线是**三个逐渐升级的项目**：Node 原生任务 API → NestJS + PostgreSQL/Prisma 博客 API → Nest + React 协作任务板。每天都有原课链接、学习目标、跟做代码、练习、可折叠的参考答案与验收，以及「AI 搭档」提示词；原课链接后附一段按本文技术栈重写的「原课知识精讲」，全书按原版六阶段组织，正文和侧边栏目录都有阶段边界。
 
 ## 与原版课程的关系
 
@@ -12,7 +12,7 @@
 
 | 方式 | 文件 | 说明 |
 | --- | --- | --- |
-| 在线 / 离线网页（推荐） | `index.html` | 双击即可离线阅读，带 60 天目录、标题搜索、代码复制、折叠答案和本地学习进度（只存在当前浏览器，不上传） |
+| 在线 / 离线网页（推荐） | `index.html` | 双击即可离线阅读，带六阶段分组目录、标题搜索、顶部阅读进度、代码复制、折叠答案和本地学习进度（只存在当前浏览器，不上传） |
 | Markdown 原稿 | `Node.js_AI全栈60天教程.md` | 完整正文，便于笔记、diff 与二次加工 |
 | 离线学习包 | `Node.js_AI全栈60天学习包.zip` | 打包了网页 + Markdown + `先读我.md` + `60天配套/` 全部代码快照，解压后离线可用 |
 
@@ -49,7 +49,7 @@
 零第三方依赖，Python 3.9+ 即可：
 
 ```bash
-python scripts/verify.py            # 22 项：日号、围栏、外链、繁简、三份一致、HTML 结构、快照 import
+python scripts/verify.py            # 28 项：日号、围栏、外链、繁简、三份一致、60 天精讲、六阶段、HTML 结构
 python scripts/check_snapshots.py   # 快照必需文件、import 完整性、繁简、关键实现
 ```
 
